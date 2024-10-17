@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Exception\ValidationFailedException;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route("/api")]
 class CommentController extends AbstractController
@@ -37,9 +39,21 @@ class CommentController extends AbstractController
     }
 
     #[Route('/comments', name: 'createComment', methods: ['POST'])]
-    public function createComment(Request $request, SerializerInterface $serializer, EntityManagerInterface $em): JsonResponse
-    {
+    public function createComment(
+        Request $request,
+        SerializerInterface $serializer,
+        EntityManagerInterface $em,
+        ValidatorInterface $validator,
+    ): JsonResponse {
         $comment = $serializer->deserialize($request->getContent(), Comment::class, 'json');
+
+        $violations = $validator->validate($comment);
+
+        if ($violations->count() > 0) {
+            throw new ValidationFailedException($comment, $violations);
+        }
+
+
         $em->persist($comment);
         $em->flush();
 
