@@ -10,14 +10,15 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Route("/api")]
 class CommentController extends AbstractController
 {
     #[Route('/comments', name: 'comments', methods: ['GET'])]
+    #[IsGranted('ROLE_EMPLOYEE', message:'Access denied')]
     public function getAllComments(CommentRepository $commentRepository, SerializerInterface $serializer): JsonResponse
     {
         $commentList = $commentRepository->findAll();
@@ -64,6 +65,7 @@ class CommentController extends AbstractController
 
 
     #[Route('/update-comment-status/{id}', name: 'updateCommentStatus', methods: ['PUT'])]
+    #[IsGranted('ROLE_EMPLOYEE', message:'Access denied')]
     public function updateCommentStatus(Comment $comment, SerializerInterface $serializer, EntityManagerInterface $em): JsonResponse
     {
         $comment->setVisible(!$comment->isVisible());
