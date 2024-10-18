@@ -14,7 +14,6 @@ class Role
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['getUsers'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50)]
