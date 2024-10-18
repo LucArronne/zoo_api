@@ -41,10 +41,11 @@ class CommentRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-      public function findValidComments(): array
+    public function findValidComments(): array
     {
         return $this->createQueryBuilder('a')
-            ->andWhere('a.isVisible = true')
+            ->andWhere('a.isVisible = :status')
+            ->setParameter('status', true)
             ->getQuery()
             ->getResult()
         ;
