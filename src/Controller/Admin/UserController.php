@@ -16,9 +16,10 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+#[Route(path: '/admin')]
 class UserController extends AbstractController
 {
-    #[Route('/admin/users', name: 'user', methods: ['GET'])]
+    #[Route('/users', name: 'users', methods: ['GET'])]
     public function getUsers(UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
     {
         $userList = $userRepository->findAllNotAdminUsers();
@@ -28,7 +29,7 @@ class UserController extends AbstractController
         return new JsonResponse($jsonUserList, Response::HTTP_OK, [], true);
     }
 
-    #[Route('/admin/users', name: 'createUser', methods: ['POST'])]
+    #[Route('/users', name: 'createUser', methods: ['POST'])]
     public function create(
         Request $request,
         EntityManagerInterface $em,
@@ -46,7 +47,7 @@ class UserController extends AbstractController
             throw new ValidationFailedException($user, $violations);
         }
 
-        $roleValue = $request->toArray()['role'] ?? '';
+        $roleValue = strtoupper($request->toArray()['role'] ?? '');
         $role = $roleRepository->findOneByValue($roleValue);
 
         if (!$role || $roleValue === 'ROLE_ADMIN') {
@@ -76,6 +77,5 @@ class UserController extends AbstractController
         $jsonResult = $serializer->serialize($user, 'json', ['groups' => 'getUsers']);
 
         return new JsonResponse($jsonResult, Response::HTTP_CREATED, [], true);
-
     }
 }

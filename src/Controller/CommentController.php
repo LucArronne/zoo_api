@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class CommentController extends AbstractController
 {
     #[Route('/comments', name: 'comments', methods: ['GET'])]
-    #[IsGranted('ROLE_EMPLOYEE', message:'Access denied')]
+    #[IsGranted('ROLE_EMPLOYEE', message: 'Access denied')]
     public function getAllComments(CommentRepository $commentRepository, SerializerInterface $serializer): JsonResponse
     {
         $commentList = $commentRepository->findAll();
@@ -28,44 +28,8 @@ class CommentController extends AbstractController
         return new JsonResponse($jsonList, Response::HTTP_OK, [], true);
     }
 
-    #[Route('/public/approuved-comments', name: 'approuved-comments', methods: ['GET'])]
-    public function getApprouvedComments(CommentRepository $commentRepository, SerializerInterface $serializer): JsonResponse
-    {
-        $validComments = $commentRepository->findValidComments();
-
-        $jsonList = $serializer->serialize($validComments, 'json');
-
-        return new JsonResponse($jsonList, Response::HTTP_OK, [], true);
-
-    }
-
-    #[Route('/public/comments', name: 'createComment', methods: ['POST'])]
-    public function createComment(
-        Request $request,
-        SerializerInterface $serializer,
-        EntityManagerInterface $em,
-        ValidatorInterface $validator,
-    ): JsonResponse {
-        $comment = $serializer->deserialize($request->getContent(), Comment::class, 'json');
-
-        $violations = $validator->validate($comment);
-
-        if ($violations->count() > 0) {
-            throw new ValidationFailedException($comment, $violations);
-        }
-
-
-        $em->persist($comment);
-        $em->flush();
-
-        $jsonComment = $serializer->serialize($comment, 'json');
-
-        return new JsonResponse($jsonComment, Response::HTTP_CREATED, [], true);
-    }
-
-
-    #[Route('/update-comment-status/{id}', name: 'updateCommentStatus', methods: ['PUT'])]
-    #[IsGranted('ROLE_EMPLOYEE', message:'Access denied')]
+    #[Route('/comments/{id}', name: 'updateCommentStatus', methods: ['PUT'])]
+    #[IsGranted('ROLE_EMPLOYEE', message: 'Access denied')]
     public function updateCommentStatus(Comment $comment, SerializerInterface $serializer, EntityManagerInterface $em): JsonResponse
     {
         $comment->setVisible(!$comment->isVisible());
@@ -79,6 +43,7 @@ class CommentController extends AbstractController
 
 
     #[Route('/comments/{id}', name: 'deleteComment', methods: ['DELETE'])]
+    #[IsGranted('ROLE_EMPLOYEE', message: 'Access denied')]
     public function deleteComment(Comment $comment, EntityManagerInterface $em): JsonResponse
     {
         $em->remove($comment);
@@ -86,7 +51,4 @@ class CommentController extends AbstractController
 
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
-
 }
-
-
