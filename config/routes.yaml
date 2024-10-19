@@ -11,3 +11,8 @@ app_routes:
 
 api_login_check:
     path: /api/login
+
+uploads_path:
+    path: /uploads/{fileName}
+    defaults: { _controller: null }
+
