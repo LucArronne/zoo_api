@@ -3,7 +3,6 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Service;
-use App\Repository\ServiceRepository;
 use App\Utils\FileUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
@@ -18,41 +17,11 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+#[Route(path: '/admin')]
 class ServiceController extends AbstractController
 {
-    #[Route('/public/services', name: 'services', methods: ['GET'])]
-    public function getServices(
-        ServiceRepository $serviceRepository,
-        SerializerInterface $serializer,
-        FileUploader $uploader,
-        UrlGeneratorInterface $urlGenerator,
-    ): JsonResponse {
-        $serviceList = $serviceRepository->findAll();
-
-        $services = [];
-
-        foreach ($serviceList as $service) {
-            $services[] = [
-                'id' => $service->getId(),
-                'title' => $service->getName(),
-                'description' => $service->getDescription(),
-                'image' => $service->getImage() === null
-                    ? null
-                    : $uploader->getFilePublicUrl($urlGenerator, $service->getImage()),
-            ];
-        }
-
-        $jsonServiceList = $serializer->serialize($services, 'json');
-
-        return new JsonResponse(
-            $jsonServiceList,
-            Response::HTTP_OK,
-            [],
-            true,
-        );
-    }
-
-    #[Route('/admin/services', name: 'createService', methods: ['POST'])]
+    
+    #[Route('/services', name: 'createService', methods: ['POST'])]
     public function createService(
         Request $request,
         EntityManagerInterface $em,
@@ -110,7 +79,6 @@ class ServiceController extends AbstractController
                     true,
                 );
             }
-
         }
 
         $em->persist($service);
