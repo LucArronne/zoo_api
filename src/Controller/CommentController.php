@@ -28,7 +28,7 @@ class CommentController extends AbstractController
         return new JsonResponse($jsonList, Response::HTTP_OK, [], true);
     }
 
-    #[Route('/approuved-comments', name: 'approuved-comments', methods: ['GET'])]
+    #[Route('/public/approuved-comments', name: 'approuved-comments', methods: ['GET'])]
     public function getApprouvedComments(CommentRepository $commentRepository, SerializerInterface $serializer): JsonResponse
     {
         $validComments = $commentRepository->findValidComments();
@@ -39,7 +39,7 @@ class CommentController extends AbstractController
 
     }
 
-    #[Route('/comments', name: 'createComment', methods: ['POST'])]
+    #[Route('/public/comments', name: 'createComment', methods: ['POST'])]
     public function createComment(
         Request $request,
         SerializerInterface $serializer,
