@@ -20,7 +20,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[Route(path: '/admin')]
 class ServiceController extends AbstractController
 {
-    
+
     #[Route('/services', name: 'createService', methods: ['POST'])]
     public function createService(
         Request $request,
@@ -32,9 +32,7 @@ class ServiceController extends AbstractController
 
     ): JsonResponse {
 
-        $service = new Service();
-        $service->setName($request->get('name'));
-        $service->setDescription($request->get('description'));
+        $service = $serializer->deserialize($request->get("data"), Service::class, 'json');
 
         $violations = $validator->validate($service);
 
