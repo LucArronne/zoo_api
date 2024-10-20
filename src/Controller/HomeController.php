@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Comment;
+use App\Repository\AnimalRepository;
 use App\Repository\CommentRepository;
 use App\Repository\ServiceRepository;
 use App\Utils\FileUploader;
@@ -68,7 +69,7 @@ class HomeController extends AbstractController
         foreach ($serviceList as $service) {
             $services[] = [
                 'id' => $service->getId(),
-                'title' => $service->getName(),
+                'name' => $service->getName(),
                 'description' => $service->getDescription(),
                 'image' => $service->getImage() === null
                     ? null
@@ -80,6 +81,38 @@ class HomeController extends AbstractController
 
         return new JsonResponse(
             $jsonServiceList,
+            Response::HTTP_OK,
+            [],
+            true,
+        );
+    }
+
+    #[Route('/animals', name: 'animals', methods: ['GET'])]
+    public function getAnimals(
+        AnimalRepository $animalRepository,
+        SerializerInterface $serializer,
+        FileUploader $uploader,
+        UrlGeneratorInterface $urlGenerator,
+    ): JsonResponse {
+        $animalList = $animalRepository->findAll();
+
+        $animals = [];
+
+        foreach ($animalList as $animal) {
+            $animals[] = [
+                'id' => $animal->getId(),
+                'name' => $animal->getName(),
+                'race' => $animal->getRace(),
+                'images' => $animal->getImages()->map(function ($filename) use ($uploader, $urlGenerator) {
+                    return $uploader->getFilePublicUrl($urlGenerator, $filename->getPath());
+                }),
+            ];
+        }
+
+        $jsonAnimalList = $serializer->serialize($animals, 'json', ['groups' => "getAnimals"]);
+
+        return new JsonResponse(
+            $jsonAnimalList,
             Response::HTTP_OK,
             [],
             true,

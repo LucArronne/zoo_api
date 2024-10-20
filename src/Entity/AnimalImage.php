@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\AnimalImageRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: AnimalImageRepository::class)]
 class AnimalImage
@@ -12,9 +13,11 @@ class AnimalImage
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(["getAnimals"])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Groups(["getAnimals"])]
     private ?string $path = null;
 
     #[ORM\ManyToOne(inversedBy: 'images')]
