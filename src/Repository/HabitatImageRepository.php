@@ -38,7 +38,7 @@ class HabitatImageRepository extends ServiceEntityRepository
         $rsm->addScalarResult("path", "path");
 
         $query = $this->getEntityManager()->createNativeQuery(
-            'SELECT * FROM animal_image ORDER BY RAND() LIMIT 2',
+            'SELECT * FROM habitat_image ORDER BY RAND() LIMIT 2',
             $rsm
         );
 
