@@ -12,7 +12,6 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -28,7 +27,6 @@ class ServiceController extends AbstractController
         FileUploader $uploader,
         SerializerInterface $serializer,
         ValidatorInterface $validator,
-        UrlGeneratorInterface $urlGenerator,
 
     ): JsonResponse {
 
@@ -83,7 +81,7 @@ class ServiceController extends AbstractController
         $em->flush();
 
         if ($service->getImage()) {
-            $imageUrl = $uploader->getFilePublicUrl($urlGenerator, $service->getImage());
+            $imageUrl = $uploader->getFilePublicUrl($service->getImage());
             $service->setImage($imageUrl);
         }
 
