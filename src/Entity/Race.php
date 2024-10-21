@@ -5,7 +5,6 @@ namespace App\Entity;
 use App\Repository\RaceRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: RaceRepository::class)]
 #[UniqueEntity(fields: ["name"], message: "The race already exists")]
@@ -14,11 +13,9 @@ class Race
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["getAnimals"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 50, unique: true)]
-    #[Groups(["getAnimals"])]
     private ?string $name = null;
 
     public function getId(): ?int

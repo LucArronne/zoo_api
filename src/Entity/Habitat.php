@@ -31,7 +31,7 @@ class Habitat
     /**
      * @var Collection<int, HabitatImage>
      */
-    #[ORM\OneToMany(targetEntity: HabitatImage::class, mappedBy: 'habitat', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: HabitatImage::class, mappedBy: 'habitat', orphanRemoval: true, cascade: ['persist'])]
     private Collection $images;
 
     public function __construct()

@@ -14,7 +14,7 @@ class HabitatImage
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(unique: true)]
     private ?string $path = null;
 
     #[ORM\ManyToOne(inversedBy: 'images')]
