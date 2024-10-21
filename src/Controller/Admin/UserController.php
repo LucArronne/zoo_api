@@ -20,13 +20,23 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class UserController extends AbstractController
 {
     #[Route('/users', name: 'users', methods: ['GET'])]
-    public function getUsers(UserRepository $userRepository, SerializerInterface $serializer): JsonResponse
-    {
-        $userList = $userRepository->findAllNotAdminUsers();
+    public function getUsers(
+        UserRepository $userRepository,
+        SerializerInterface $serializer
+    ): JsonResponse {
 
-        $jsonUserList = $serializer->serialize($userList, 'json', ['groups' => 'getUsers']);
+        $result = $serializer->serialize(
+            $userRepository->findAllNotAdminUsers(),
+            'json',
+            ['groups' => 'getUsers']
+        );
 
-        return new JsonResponse($jsonUserList, Response::HTTP_OK, [], true);
+        return new JsonResponse(
+            $result,
+            Response::HTTP_OK,
+            [],
+            true
+        );
     }
 
     #[Route('/users', name: 'createUser', methods: ['POST'])]
