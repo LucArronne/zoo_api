@@ -3,11 +3,16 @@
 namespace App\Controller;
 
 use App\Entity\Comment;
+use App\Entity\Service;
+use App\Repository\AnimalImageRepository;
 use App\Repository\AnimalRepository;
 use App\Repository\CommentRepository;
+use App\Repository\HabitatImageRepository;
 use App\Repository\HabitatRepository;
 use App\Repository\ServiceRepository;
+use App\Utils\AnimalSerializer;
 use App\Utils\FileUploader;
+use App\Utils\HabitatSerializer;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,47 +26,18 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[Route(path: '/home')]
 class HomeController extends AbstractController
 {
-
-    #[Route(path: '/habitats', name: 'habitats', methods: ['GET'])]
-    public function getHabitas(
-        HabitatRepository $habitatRepository,
-        FileUploader $uploader,
+    #[Route(path: '/images', name: 'images', methods: ['GET'])]
+    public function getImages(
+        HabitatImageRepository $habitatImageRepository,
+        AnimalImageRepository $animalImageRepository,
         SerializerInterface $serializer,
+        FileUploader $uploader,
     ): JsonResponse {
 
-        $habitatList = $habitatRepository->findAll();
+        $result = array_map(function ($image) use ($uploader) {
+            return $uploader->getFilePublicUrl($image["path"]);
+        }, [...$animalImageRepository->findRandomImages(), ...$habitatImageRepository->findRandomImages()]);
 
-        $result = [];
-        foreach ($habitatList as $habitat) {
-            $images = [];
-            foreach ($habitat->getImages() as $image) {
-                $images[] = [
-                    'id' => $image->getId(),
-                    'path' => $uploader->getFilePublicUrl($image->getPath())
-                ];
-            }
-            $animals = [];
-            foreach ($habitat->getAnimals() as $animal) {
-                $animals[] = [
-                    'id' => $animal->getId(),
-                    'name' => $animal->getName(),
-                    'race' => $animal->getRace(),
-                    'images' => $animal->getImages()->map(function ($image) use ($uploader) {
-                        return [
-                            'id' => $image->getId(),
-                            'path' => $uploader->getFilePublicUrl($image->getPath()),
-                        ];
-                    }),
-                ];
-            }
-            $result[] = [
-                'id' => $habitat->getId(),
-                'name' => $habitat->getName(),
-                'descrption' => $habitat->getDescription(),
-                'images' => $images,
-                'animals' => $animals,
-            ];
-        }
 
         return new JsonResponse(
             $serializer->serialize($result, 'json'),
@@ -71,27 +47,14 @@ class HomeController extends AbstractController
         );
     }
 
-    #[Route('/services', name: 'services', methods: ['GET'])]
-    public function getServices(
-        ServiceRepository $serviceRepository,
+    #[Route(path: '/habitats', name: 'habitats', methods: ['GET'])]
+    public function getHabitas(
+        HabitatRepository $habitatRepository,
         SerializerInterface $serializer,
-        FileUploader $uploader,
+        HabitatSerializer $habitatSerializer
     ): JsonResponse {
 
-        $serviceList = $serviceRepository->findAll();
-
-        $result = [];
-
-        foreach ($serviceList as $service) {
-            $result[] = [
-                'id' => $service->getId(),
-                'name' => $service->getName(),
-                'description' => $service->getDescription(),
-                'image' => $service->getImage() === null
-                    ? null
-                    : $uploader->getFilePublicUrl($service->getImage()),
-            ];
-        }
+        $result = $habitatSerializer->serializeArray($habitatRepository->findAll());
 
         return new JsonResponse(
             $serializer->serialize($result, 'json'),
@@ -105,25 +68,31 @@ class HomeController extends AbstractController
     public function getAnimals(
         AnimalRepository $animalRepository,
         SerializerInterface $serializer,
+        AnimalSerializer $animalSerializer,
+    ): JsonResponse {
+
+        $result = $animalSerializer->serializeArray($animalRepository->findAll());
+
+        return new JsonResponse(
+            $serializer->serialize($result, 'json'),
+            Response::HTTP_OK,
+            [],
+            true,
+        );
+    }
+
+
+    #[Route('/services', name: 'services', methods: ['GET'])]
+    public function getServices(
+        ServiceRepository $serviceRepository,
+        SerializerInterface $serializer,
         FileUploader $uploader,
     ): JsonResponse {
-        $animalList = $animalRepository->findAll();
 
-        $result = [];
-
-        foreach ($animalList as $animal) {
-            $result[] = [
-                'id' => $animal->getId(),
-                'name' => $animal->getName(),
-                'race' => $animal->getRace(),
-                'images' => $animal->getImages()->map(function ($image) use ($uploader) {
-                    return [
-                        'id' => $image->getId(),
-                        'path' => $uploader->getFilePublicUrl($image->getPath()),
-                    ];
-                }),
-            ];
-        }
+        $result = array_map(function (Service $value) use ($uploader): Service {
+            $value->setImage($uploader->getFilePublicUrl($value->getImage()));
+            return $value;
+        }, $serviceRepository->findAll());
 
         return new JsonResponse(
             $serializer->serialize($result, 'json'),
@@ -136,11 +105,14 @@ class HomeController extends AbstractController
     #[Route('/comments', name: 'approuved-comments', methods: ['GET'])]
     public function getApprouvedComments(CommentRepository $commentRepository, SerializerInterface $serializer): JsonResponse
     {
-        $validComments = $commentRepository->findValidComments();
+        $jsonList = $serializer->serialize($commentRepository->findValidComments(), 'json');
 
-        $jsonList = $serializer->serialize($validComments, 'json');
-
-        return new JsonResponse($jsonList, Response::HTTP_OK, [], true);
+        return new JsonResponse(
+            $jsonList,
+            Response::HTTP_OK,
+            [],
+            true
+        );
     }
 
     #[Route('/comments', name: 'createComment', methods: ['POST'])]
@@ -162,8 +134,11 @@ class HomeController extends AbstractController
         $em->persist($comment);
         $em->flush();
 
-        $jsonComment = $serializer->serialize($comment, 'json');
-
-        return new JsonResponse($jsonComment, Response::HTTP_CREATED, [], true);
+        return new JsonResponse(
+            $serializer->serialize($comment, 'json'),
+            Response::HTTP_CREATED,
+            [],
+            true
+        );
     }
 }

@@ -4,7 +4,9 @@ namespace App\Repository;
 
 use App\Entity\AnimalImage;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\Persistence\ManagerRegistry;
+use PDO;
 
 /**
  * @extends ServiceEntityRepository<AnimalImage>
@@ -40,4 +42,17 @@ class AnimalImageRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    public function findRandomImages(): array
+    {
+        $rsm = new ResultSetMapping();
+        $rsm->addScalarResult("path", "path");
+
+        $query = $this->getEntityManager()->createNativeQuery(
+            'SELECT * FROM animal_image ORDER BY RAND() LIMIT 3',
+            $rsm
+        );
+
+        return $query->getResult();
+    }
 }
