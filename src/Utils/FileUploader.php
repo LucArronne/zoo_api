@@ -11,10 +11,12 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 class FileUploader
 {
     private string $targetDirectory;
+    private UrlGeneratorInterface $urlGenerator;
 
-    public function __construct(string $targetDirectory)
+    public function __construct(string $targetDirectory, UrlGeneratorInterface $urlGenerator)
     {
         $this->targetDirectory = $targetDirectory;
+        $this->urlGenerator = $urlGenerator;
     }
 
     /**
@@ -39,16 +41,15 @@ class FileUploader
         }
 
         return $filename;
-
     }
 
     /**
      * Get the public url of a file
      * 
      */
-    public function getFilePublicUrl(UrlGeneratorInterface $urlGenerator, string $fileName): string
+    public function getFilePublicUrl(string $fileName): string
     {
-        return $urlGenerator->generate(
+        return $this->urlGenerator->generate(
             'uploads_path',
             ['fileName' => $fileName],
             UrlGeneratorInterface::ABSOLUTE_URL
