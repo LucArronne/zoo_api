@@ -5,6 +5,8 @@ namespace App\Entity;
 use App\Repository\AnimalRapportRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AnimalRapportRepository::class)]
 class AnimalRapport
@@ -12,29 +14,43 @@ class AnimalRapport
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['getRapports'])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: "The state is required")]
+    #[Groups(['getRapports'])]
     private ?string $state = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\NotBlank(message: "The food is required")]
+    #[Groups(['getRapports'])]
     private ?string $food = null;
 
     #[ORM\Column]
+    #[Assert\NotBlank(message: "The quantity is required")]
+    #[Groups(['getRapports'])]
     private ?float $quantity = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
+    #[Assert\NotBlank(message: "The date is required")]
+    #[Groups(['getRapports'])]
     private ?\DateTimeImmutable $date = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['getRapports'])]
     private ?string $details = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: "The user is required")]
+    #[Groups(['getRapports'])]
     private ?User $user = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: "The animal is required")]
+    #[Groups(['getRapports'])]
     private ?Animal $animal = null;
 
     public function getId(): ?int
