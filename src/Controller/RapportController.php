@@ -81,10 +81,12 @@ class RapportController extends AbstractController
             } catch (Exception $e) {
                 return new JsonResponse(
                     [
+                        "status" => Response::HTTP_BAD_REQUEST,
                         'error' => 'Invalid query',
                         'message' => 'Invalid date format',
                     ],
-                    Response::HTTP_BAD_REQUEST
+                    Response::HTTP_BAD_REQUEST,
+                    [],
                 );
             }
         } else {
