@@ -41,7 +41,7 @@ class RoleRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    public function findOneByValue($value): ?Role
+    /*public function findOneByValue($value): ?Role
     {
         return $this->createQueryBuilder('r')
             ->andWhere('r.value = :val')
@@ -49,5 +49,5 @@ class RoleRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult()
         ;
-    }
+    }*/
 }
