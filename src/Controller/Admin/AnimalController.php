@@ -50,7 +50,7 @@ class AnimalController extends AbstractController
         $violations = $validator->validate($animal);
 
         if ($violations->count() > 0) {
-            throw new ValidationFailedException($$animal, $violations);
+            throw new ValidationFailedException($animal, $violations);
         }
 
         $animalImages = $request->files->get("files");
