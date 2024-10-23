@@ -33,7 +33,7 @@ class AnimalRapport
     private ?float $quantity = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
-    #[Assert\NotBlank(message: "The date is required")]
+    #[Assert\NotNull(message: "The date is required")]
     #[Groups(['getRapports'])]
     private ?\DateTimeImmutable $date = null;
 
