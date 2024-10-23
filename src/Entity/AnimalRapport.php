@@ -42,13 +42,13 @@ class AnimalRapport
     private ?string $details = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     #[Assert\NotNull(message: "The user is not found")]
     #[Groups(['getRapports'])]
     private ?User $user = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     #[Assert\NotNull(message: "The animal is not found")]
     #[Groups(['getRapports'])]
     private ?Animal $animal = null;
