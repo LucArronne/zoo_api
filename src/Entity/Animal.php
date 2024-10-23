@@ -25,7 +25,7 @@ class Animal
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
-    #[Assert\NotNull(message: "The race is required")]
+    #[Assert\NotNull(message: "The race is not found")]
     #[Groups(['getRapports'])]
     private ?Race $race = null;
 
@@ -37,7 +37,7 @@ class Animal
 
     #[ORM\ManyToOne(inversedBy: 'animals')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Assert\NotNull(message: "The habitat is required")]
+    #[Assert\NotNull(message: "The habitat is not found")]
     private ?Habitat $habitat = null;
 
     public function __construct()
