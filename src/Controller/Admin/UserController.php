@@ -51,21 +51,21 @@ class UserController extends AbstractController
 
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
 
-        $violations = $validator->validate($user);
+        $roleValue = strtoupper($request->toArray()['role'] ?? '');
+        $role = $roleRepository->findOneByValue($roleValue);
+        $user->setRole($role);
 
+        $violations = $validator->validate($user);
         if ($violations->count() > 0) {
             throw new ValidationFailedException($user, $violations);
         }
 
-        $roleValue = strtoupper($request->toArray()['role'] ?? '');
-        $role = $roleRepository->findOneByValue($roleValue);
-
-        if (!$role || $roleValue === 'ROLE_ADMIN') {
+        if ($roleValue === 'ROLE_ADMIN') {
             return new JsonResponse(
                 $serializer->serialize(
                     [
                         "status" => Response::HTTP_BAD_REQUEST,
-                        "message" => "Data validation failed",
+                        "message" => "Role validation failed",
                         'errors' => "Invalid role use ROLE_EMPLOYEE or ROLE_VETERNARY",
                     ],
                     'json',
@@ -78,7 +78,6 @@ class UserController extends AbstractController
 
         $user->setPassword($passwordHasher->hashPassword($user, $user->getPassword()));
 
-        $user->setRole($role);
         $em->persist($user);
         $em->flush();
 

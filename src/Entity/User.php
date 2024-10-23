@@ -40,6 +40,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\ManyToOne(inversedBy: 'users')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Assert\NotNull(message: "The role is not found")]
     #[Groups(['getUsers'])]
     private ?Role $role = null;
 
