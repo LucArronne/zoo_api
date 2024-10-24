@@ -159,7 +159,7 @@ class UserController extends AbstractController
                 'json',
                 ['groups' => 'getUsers']
             ),
-            Response::HTTP_CREATED,
+            Response::HTTP_OK,
             [],
             true
         );
