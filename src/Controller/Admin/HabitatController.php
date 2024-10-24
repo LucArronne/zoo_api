@@ -93,7 +93,8 @@ class HabitatController extends AbstractController
                         $serializer->serialize(
                             [
                                 "status" => Response::HTTP_INTERNAL_SERVER_ERROR,
-                                "message" => $e->getMessage(),
+                                "message" => 'Upload failed',
+                                "error" => $e->getMessage(),
                             ],
                             'json'
                         ),
@@ -179,7 +180,8 @@ class HabitatController extends AbstractController
                         $serializer->serialize(
                             [
                                 "status" => Response::HTTP_INTERNAL_SERVER_ERROR,
-                                "message" => $e->getMessage(),
+                                "message" => 'Upload failed',
+                                "error" => $e->getMessage(),
                             ],
                             'json'
                         ),
