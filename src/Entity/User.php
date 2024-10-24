@@ -18,13 +18,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['getUsers', 'getRapports'])]
+    #[Groups(['getUsers', 'getRapports', 'getFoods'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
     #[Assert\NotBlank(message: "The email is required")]
     #[Assert\Email(message: "The email is invalid")]
-    #[Groups(['getUsers', 'getRapports'])]
+    #[Groups(['getUsers', 'getRapports', 'getFoods'])]
     private ?string $email = null;
 
     /**
@@ -35,7 +35,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     #[ORM\Column(nullable: true)]
-    #[Groups(['getUsers', 'getRapports'])]
+    #[Groups(['getUsers', 'getRapports', 'getFoods'])]
     private ?string $name = null;
 
     #[ORM\ManyToOne(inversedBy: 'users')]
