@@ -90,7 +90,9 @@ class HomeController extends AbstractController
     ): JsonResponse {
 
         $result = array_map(function (Service $value) use ($uploader): Service {
-            $value->setImage($uploader->getFilePublicUrl($value->getImage()));
+            if ($value->getImage()) {
+                $value->setImage($uploader->getFilePublicUrl($value->getImage()));
+            }
             return $value;
         }, $serviceRepository->findAll());
 
