@@ -20,17 +20,17 @@ class Habitat
     private ?int $id = null;
 
     #[ORM\Column(length: 255, unique: true)]
-    #[Assert\NotBlank(message:"The name is required")]
+    #[Assert\NotBlank(message: "The name is required")]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT)]
-    #[Assert\NotBlank(message:"The description is required")]
+    #[Assert\NotBlank(message: "The description is required")]
     private ?string $description = null;
 
     /**
      * @var Collection<int, Animal>
      */
-    #[ORM\OneToMany(targetEntity: Animal::class, mappedBy: 'habitat')]
+    #[ORM\OneToMany(targetEntity: Animal::class, mappedBy: 'habitat', orphanRemoval: true)]
     private Collection $animals;
 
     /**
