@@ -2,13 +2,21 @@
 
 namespace App\Dto;
 
+use App\Entity\Image;
 use App\Entity\Race;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Attributes as OA;
 
 class AnimalDto
 {
     private int $id;
     private string $name;
     private Race $race;
+
+    #[OA\Property(
+        type: "array",
+        items: new OA\Items(ref: new Model(type: Image::class)),
+    )]
     private array $images;
 
     public function __construct(int $id, string $name, Race $race, array $images)
