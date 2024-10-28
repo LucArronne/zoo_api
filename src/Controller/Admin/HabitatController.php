@@ -2,12 +2,15 @@
 
 namespace App\Controller\Admin;
 
+use App\Dto\HabitatDto;
 use App\Entity\Habitat;
 use App\Entity\HabitatImage;
 use App\Utils\FileUploader;
 use App\Utils\HabitatSerializer;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,9 +23,52 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route(path: '/admin')]
+#[OA\Tag(name: 'admin')]
 class HabitatController extends AbstractController
 {
     #[Route('/habitats', name: 'createHabitat', methods: ['POST'])]
+    #[OA\Post(
+        summary: 'Create a new habitat',
+        description: 'Create a new animal record with optinal images',
+        requestBody: new OA\RequestBody(
+            description: 'Habitat data in json format (required)',
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'multipart/form-data',
+                schema: new OA\Schema(
+                    type: 'object',
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            type: 'string',
+                            required: ["name", "desription", "habitat"],
+                            description: 'Habitat data in json format',
+                            example: '{"name": "Habitat 1", "desc": "Lion\'s habitat"}'
+                        ),
+                        new OA\Property(
+                            property: "images",
+                            type: "array",
+                            items: new OA\Items(type: "string", format: "binary"),
+                            description: "Image files for the habitat. Allowed formats: jpg, jpeg, png. (optional)"
+                        ),
+                    ]
+                )
+
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_CREATED,
+                description: "Habitat created successfully.",
+                content: new OA\JsonContent(ref: new Model(type: HabitatDto::class))
+            ),
+            new OA\Response(
+                response: Response::HTTP_BAD_REQUEST,
+                description: "Invalid input data or validation error.",
+            )
+        ]
+
+    )]
     public function createHabitat(
         Request $request,
         EntityManagerInterface $em,
@@ -120,6 +166,52 @@ class HabitatController extends AbstractController
     }
 
     #[Route('/habitats/{id}', name: 'updateHabitat', methods: ['POST'])]
+    #[OA\Post(
+        summary: 'Update a habitat',
+        description: 'Update a animal with new data or images',
+        requestBody: new OA\RequestBody(
+            description: 'Habitat data in json format (required)',
+            required: true,
+            content: new OA\MediaType(
+                mediaType: 'multipart/form-data',
+                schema: new OA\Schema(
+                    type: 'object',
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            type: 'string',
+                            required: ["name", "desription", "habitat"],
+                            description: 'Habitat data in json format',
+                            example: '{"name": "Habitat 1", "desc": "Lion\'s habitat"}'
+                        ),
+                        new OA\Property(
+                            property: "images",
+                            type: "array",
+                            items: new OA\Items(type: "string", format: "binary"),
+                            description: "Image files for the habitat. Allowed formats: jpg, jpeg, png. (optional)"
+                        ),
+                    ]
+                )
+
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_CREATED,
+                description: "Habitat updated successfully.",
+                content: new OA\JsonContent(ref: new Model(type: HabitatDto::class))
+            ),
+            new OA\Response(
+                response: Response::HTTP_BAD_REQUEST,
+                description: "Invalid input data or validation error.",
+            ),
+            new OA\Response(
+                response: Response::HTTP_NOT_FOUND,
+                description: "Habitat not found",
+            )
+        ]
+
+    )]
     public function updateHabitat(
         Request $request,
         Habitat $currenthabitat,
@@ -210,6 +302,20 @@ class HabitatController extends AbstractController
     }
 
     #[Route(path: '/habitats/{id}', name: 'deleteHabitat', methods: ['DELETE'])]
+    #[OA\Delete(
+        summary: "Delete a habitat",
+        description: "Remove a habitat record",
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_NO_CONTENT,
+                description: "Habitat deleted successfully."
+            ),
+            new OA\Response(
+                response: Response::HTTP_NOT_FOUND,
+                description: "Habitat not found."
+            )
+        ]
+    )]
     public function deleteHabitat(Habitat $habitat, EntityManagerInterface $em): JsonResponse
     {
         $em->remove($habitat);

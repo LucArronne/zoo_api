@@ -2,12 +2,26 @@
 
 namespace  App\Dto;
 
+use App\Entity\Image;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Attributes as OA;
+
 class HabitatDto
 {
     private int $id;
     private string  $name;
     private string $description;
+
+    #[OA\Property(
+        type: "array",
+        items: new OA\Items(ref: new Model(type: AnimalDto::class)),
+    )]
     private array $animals;
+
+    #[OA\Property(
+        type: "array",
+        items: new OA\Items(ref: new Model(type: Image::class)),
+    )]
     private array $images;
 
     public function __construct(int $id, string $name, string $description, array $animals, array $images)
