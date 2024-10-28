@@ -35,7 +35,7 @@ class AnimalController extends AbstractController
         summary: 'Create a new animal',
         description: 'Create a new animal record with optional images',
         requestBody: new OA\RequestBody(
-            description: 'Animal data in json format',
+            description: 'Animal data in json format (required)',
             required: true,
             content: new OA\MediaType(
                 mediaType: 'multipart/form-data',
@@ -53,7 +53,7 @@ class AnimalController extends AbstractController
                             property: "images",
                             type: "array",
                             items: new OA\Items(type: "string", format: "binary"),
-                            description: "Image files for the animal. Allowed formats: jpg, jpeg, png."
+                            description: "Image files for the animal. Allowed formats: jpg, jpeg, png. (optional)"
                         ),
                     ]
                 )
@@ -210,12 +210,16 @@ class AnimalController extends AbstractController
         responses: [
             new OA\Response(
                 response: Response::HTTP_OK,
-                description: "Animal created successfully.",
+                description: "Animal updated successfully.",
                 content: new OA\JsonContent(ref: new Model(type: AnimalDto::class))
             ),
             new OA\Response(
                 response: Response::HTTP_BAD_REQUEST,
                 description: "Invalid input data or validation error.",
+            ),
+            new OA\Response(
+                response: Response::HTTP_NOT_FOUND,
+                description: "Animal not found."
             )
         ]
 
