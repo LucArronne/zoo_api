@@ -35,7 +35,7 @@ class AnimalController extends AbstractController
         summary: 'Create a new animal',
         description: 'Create a new animal record with optional images',
         requestBody: new OA\RequestBody(
-            description: 'Animal data in json format (required)',
+            description: 'Animal data object',
             required: true,
             content: new OA\MediaType(
                 mediaType: 'multipart/form-data',
@@ -46,7 +46,7 @@ class AnimalController extends AbstractController
                             property: 'data',
                             type: 'string',
                             required: ["name", "race", "habitat"],
-                            description: 'Animal data in json format',
+                            description: 'Animal data in json format (required)',
                             example: '{"name": "Lion", "race": 1, "habitat": 2}'
                         ),
                         new OA\Property(
@@ -183,7 +183,7 @@ class AnimalController extends AbstractController
         summary: 'Update an animal',
         description: 'Update an animal with new data or images',
         requestBody: new OA\RequestBody(
-            description: 'Animal data in json format',
+            description: 'Animal data object',
             content: new OA\MediaType(
                 mediaType: 'multipart/form-data',
                 schema: new OA\Schema(

@@ -31,7 +31,7 @@ class HabitatController extends AbstractController
         summary: 'Create a new habitat',
         description: 'Create a new animal record with optinal images',
         requestBody: new OA\RequestBody(
-            description: 'Habitat data in json format (required)',
+            description: 'Habitat data object',
             required: true,
             content: new OA\MediaType(
                 mediaType: 'multipart/form-data',
@@ -41,9 +41,9 @@ class HabitatController extends AbstractController
                         new OA\Property(
                             property: 'data',
                             type: 'string',
-                            required: ["name", "desription", "habitat"],
-                            description: 'Habitat data in json format',
-                            example: '{"name": "Habitat 1", "desc": "Lion\'s habitat"}'
+                            required: ["name", "description"],
+                            description: 'Habitat data in json format (required)',
+                            example: '{"name": "Habitat 1", "description": "Lion\'s habitat"}'
                         ),
                         new OA\Property(
                             property: "images",
@@ -170,8 +170,7 @@ class HabitatController extends AbstractController
         summary: 'Update a habitat',
         description: 'Update a animal with new data or images',
         requestBody: new OA\RequestBody(
-            description: 'Habitat data in json format (required)',
-            required: true,
+            description: 'Habitat data object',
             content: new OA\MediaType(
                 mediaType: 'multipart/form-data',
                 schema: new OA\Schema(
@@ -180,15 +179,14 @@ class HabitatController extends AbstractController
                         new OA\Property(
                             property: 'data',
                             type: 'string',
-                            required: ["name", "desription", "habitat"],
                             description: 'Habitat data in json format',
-                            example: '{"name": "Habitat 1", "desc": "Lion\'s habitat"}'
+                            example: '{"name": "Habitat 1", "description": "Lion\'s habitat"}'
                         ),
                         new OA\Property(
                             property: "images",
                             type: "array",
                             items: new OA\Items(type: "string", format: "binary"),
-                            description: "Image files for the habitat. Allowed formats: jpg, jpeg, png. (optional)"
+                            description: "Image files for the habitat. Allowed formats: jpg, jpeg, png."
                         ),
                     ]
                 )
