@@ -12,7 +12,6 @@ use App\Utils\FileUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
