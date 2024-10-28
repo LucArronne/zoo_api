@@ -13,12 +13,11 @@ class ImageToUrlSerializer
         $this->uploader = $uploader;
     }
 
-    public function serialize(Image $image): array
+    public function serialize(Image $image): Image
     {
-        return [
-            "id" => $image->getId(),
-            "path" => $this->uploader->getFilePublicUrl($image->getPath()),
-        ];
+        return (new Image())
+            ->setId($image->getId())
+            ->setPath($this->uploader->getFilePublicUrl($image->getPath()));
     }
     public function serializeArray(array $images): array
     {
