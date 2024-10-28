@@ -2,6 +2,7 @@
 
 namespace App\Utils;
 
+use App\Dto\AnimalDto;
 use App\Entity\Animal;
 
 class AnimalSerializer
@@ -13,14 +14,14 @@ class AnimalSerializer
         $this->imageToUrlSerializer = $imageToUrlSerializer;
     }
 
-    public function serialize(Animal $animal): array
+    public function serialize(Animal $animal): AnimalDto
     {
-        return [
-            "id" => $animal->getId(),
-            "name" => $animal->getName(),
-            "race" => $animal->getRace(),
-            "images" => $this->imageToUrlSerializer->serializeArray($animal->getImages()->toArray()),
-        ];
+        return new AnimalDto(
+            $animal->getId(),
+            $animal->getName(),
+            $animal->getRace(),
+            $this->imageToUrlSerializer->serializeArray($animal->getImages()->toArray()),
+        );
     }
     public function serializeArray(array $animals): array
     {
