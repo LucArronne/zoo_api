@@ -6,6 +6,7 @@ use App\Entity\User;
 use App\Repository\RoleRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,11 +17,24 @@ use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use OpenApi\Attributes as OA;
 
 #[Route(path: '/admin')]
+#[OA\Tag(name: 'admin')]
 class UserController extends AbstractController
 {
     #[Route('/users', name: 'users', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Get the list of users'
+    )]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'Returns the list of all not admin users',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: User::class, groups: ['getUsers']))
+        )
+    )]
     public function getUsers(
         UserRepository $userRepository,
         SerializerInterface $serializer
@@ -41,6 +55,51 @@ class UserController extends AbstractController
     }
 
     #[Route('/users', name: 'createUser', methods: ['POST'])]
+    #[OA\Post(
+        summary: 'Create new user',
+        description: 'Create a new user record with role',
+        requestBody: new OA\RequestBody(
+            required: true,
+            description: 'User data in json format. User role, either ROLE_EMPLOYEE or ROLE_VETERINARY',
+            content: new OA\JsonContent(
+                type: 'object',
+                properties: [
+                    new OA\Property(
+                        property: "email",
+                        type: "string",
+                        example: "test@zoo.org"
+                    ),
+                    new OA\Property(
+                        property: "password",
+                        type: "string",
+                        example: "password"
+                    ),
+                    new OA\Property(
+                        property: "name",
+                        type: "string",
+                        example: "Test name"
+                    ),
+                    new OA\Property(
+                        property: "role",
+                        type: "string",
+                        enum: ["ROLE_EMPLOYEE", "ROLE_VETERINARY"],
+                    )
+                ],
+            ),
+        ),
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_CREATED,
+                description: "User created successfully.",
+                content: new OA\JsonContent(ref: new Model(type: User::class, groups: ["getUsers"])),
+            ),
+            new OA\Response(
+                response: Response::HTTP_BAD_REQUEST,
+                description: "Invalid input data or validation error.",
+            )
+        ]
+
+    )]
     public function createUser(
         Request $request,
         EntityManagerInterface $em,
@@ -96,6 +155,53 @@ class UserController extends AbstractController
     }
 
     #[Route('/users/{id}', name: 'updateUser', methods: ['PUT'])]
+    #[OA\Put(
+        summary: 'Update a user',
+        requestBody: new OA\RequestBody(
+            description: 'User data in json format. User role, either ROLE_EMPLOYEE or ROLE_VETERINARY',
+            content: new OA\JsonContent(
+                type: 'object',
+                properties: [
+                    new OA\Property(
+                        property: "email",
+                        type: "string",
+                        example: "test@zoo.org"
+                    ),
+                    new OA\Property(
+                        property: "password",
+                        type: "string",
+                        example: "password"
+                    ),
+                    new OA\Property(
+                        property: "name",
+                        type: "string",
+                        example: "Test name"
+                    ),
+                    new OA\Property(
+                        property: "role",
+                        type: "string",
+                        enum: ["ROLE_EMPLOYEE", "ROLE_VETERINARY"],
+                    )
+                ],
+            ),
+        ),
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_OK,
+                description: "User created successfully.",
+                content: new OA\JsonContent(ref: new Model(type: User::class, groups: ["getUsers"])),
+            ),
+            new OA\Response(
+                response: Response::HTTP_BAD_REQUEST,
+                description: "Invalid input data or validation error.",
+            ),
+            new OA\Response(
+                response: Response::HTTP_NOT_FOUND,
+                description: "User not found",
+            ),
+        ]
+
+    )]
     public function updateUser(
         Request $request,
         User $currentUser,
@@ -166,6 +272,20 @@ class UserController extends AbstractController
     }
 
     #[Route('/users/{id}', name: 'deleteUser', methods: ['DELETE'])]
+    #[OA\Delete(
+        summary: 'Delete a user',
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_NO_CONTENT,
+                description: "User deleted successfully.",
+            ),
+            new OA\Response(
+                response: Response::HTTP_NOT_FOUND,
+                description: "User not found",
+            ),
+        ]
+
+    )]
     public function deleteComment(
         User $user,
         EntityManagerInterface $em
