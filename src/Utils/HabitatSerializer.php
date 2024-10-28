@@ -2,6 +2,7 @@
 
 namespace App\Utils;
 
+use App\Dto\HabitatDto;
 use App\Entity\Habitat;
 
 class HabitatSerializer
@@ -15,15 +16,15 @@ class HabitatSerializer
         $this->animalSerializer = $animalSerializer;
     }
 
-    public function serialize(Habitat $habitat): array
+    public function serialize(Habitat $habitat): HabitatDto
     {
-        return [
-            "id" => $habitat->getId(),
-            "name" => $habitat->getName(),
-            "description" => $habitat->getDescription(),
-            "images" => $this->imageToUrlSerializer->serializeArray($habitat->getImages()->toArray()),
-            "animals" => $this->animalSerializer->serializeArray($habitat->getAnimals()->toArray()),
-        ];
+        return new HabitatDto(
+            $habitat->getId(),
+            $habitat->getName(),
+            $habitat->getDescription(),
+            $this->animalSerializer->serializeArray($habitat->getAnimals()->toArray()),
+            $this->imageToUrlSerializer->serializeArray($habitat->getImages()->toArray())
+        );
     }
     public function serializeArray(array $habitats): array
     {
