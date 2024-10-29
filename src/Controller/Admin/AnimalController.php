@@ -26,7 +26,7 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route(path: '/admin')]
-#[OA\Tag(name: 'admin')]
+#[OA\Tag(name: 'Admin')]
 class AnimalController extends AbstractController
 {
     #[Route('/races', name: 'races', methods: ['GET'])]
