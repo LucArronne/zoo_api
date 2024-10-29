@@ -12,6 +12,7 @@ use InvalidArgumentException;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -40,13 +41,16 @@ class HabitatController extends AbstractController
                     properties: [
                         new OA\Property(
                             property: 'data',
-                            type: 'string',
+                            type: 'object',
                             required: ["name", "description"],
                             description: 'Habitat data in json format (required)',
-                            example: '{"name": "Habitat 1", "description": "Lion\'s habitat"}'
+                            properties: [
+                                new OA\Property(property: "name", type: "string", example: "Habitat 1"),
+                                new OA\Property(property: "description", type: "string", example: "Description 1"),
+                            ]
                         ),
                         new OA\Property(
-                            property: "images",
+                            property: "images[]",
                             type: "array",
                             items: new OA\Items(type: "string", format: "binary"),
                             description: "Image files for the habitat. Allowed formats: jpg, jpeg, png. (optional)"
@@ -178,15 +182,19 @@ class HabitatController extends AbstractController
                     properties: [
                         new OA\Property(
                             property: 'data',
-                            type: 'string',
+                            type: 'object',
+                            required: ["name", "description"],
                             description: 'Habitat data in json format',
-                            example: '{"name": "Habitat 1", "description": "Lion\'s habitat"}'
+                            properties: [
+                                new OA\Property(property: "name", type: "string", example: "Habitat 2"),
+                                new OA\Property(property: "description", type: "string", example: "Description 2"),
+                            ]
                         ),
                         new OA\Property(
-                            property: "images",
+                            property: "images[]",
                             type: "array",
                             items: new OA\Items(type: "string", format: "binary"),
-                            description: "Image files for the habitat. Allowed formats: jpg, jpeg, png."
+                            description: "Image files for the habitat. Allowed formats: jpg, jpeg, png"
                         ),
                     ]
                 )
@@ -314,10 +322,21 @@ class HabitatController extends AbstractController
             )
         ]
     )]
-    public function deleteHabitat(Habitat $habitat, EntityManagerInterface $em): JsonResponse
-    {
+    public function deleteHabitat(
+        Habitat $habitat,
+        EntityManagerInterface $em,
+        ParameterBagInterface $params,
+    ): JsonResponse {
         $em->remove($habitat);
         $em->flush();
+        foreach ($habitat->getImages() as $image) {
+            $filePath = str_contains($image->getPath(), "http")
+                ? $params->get('uploads_directory') . '/' . basename($image->getPath())
+                : $params->get('uploads_directory') . '/' . $image->getPath();
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+        }
         return new JsonResponse(
             null,
             Response::HTTP_NO_CONTENT
