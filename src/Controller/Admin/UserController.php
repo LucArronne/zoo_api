@@ -157,6 +157,15 @@ class UserController extends AbstractController
     #[Route('/users/{id}', name: 'updateUser', methods: ['PUT'])]
     #[OA\Put(
         summary: 'Update a user',
+        parameters: [
+            new OA\Parameter(
+                name: "id",
+                in: "path",
+                required: true,
+                description: "The ID of the user",
+                schema: new OA\Schema(type: "integer")
+            )
+        ],
         requestBody: new OA\RequestBody(
             description: 'User data in json format. User role, either ROLE_EMPLOYEE or ROLE_VETERNARY',
             content: new OA\JsonContent(
@@ -274,6 +283,15 @@ class UserController extends AbstractController
     #[Route('/users/{id}', name: 'deleteUser', methods: ['DELETE'])]
     #[OA\Delete(
         summary: 'Delete a user',
+        parameters: [
+            new OA\Parameter(
+                name: "id",
+                in: "path",
+                required: true,
+                description: "The ID of the user",
+                schema: new OA\Schema(type: "integer")
+            )
+        ],
         responses: [
             new OA\Response(
                 response: Response::HTTP_NO_CONTENT,
