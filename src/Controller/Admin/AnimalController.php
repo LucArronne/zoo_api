@@ -220,6 +220,15 @@ class AnimalController extends AbstractController
     #[OA\Post(
         summary: 'Update an animal',
         description: 'Update an animal with new data or images',
+        parameters: [
+            new OA\Parameter(
+                name: "id",
+                in: "path",
+                required: true,
+                description: "The Id of the animal",
+                schema: new OA\Schema(type: "integer")
+            )
+        ],
         requestBody: new OA\RequestBody(
             description: 'Animal data object',
             content: new OA\MediaType(
@@ -369,6 +378,15 @@ class AnimalController extends AbstractController
     #[OA\Delete(
         summary: "Delete an animal",
         description: "Remove an animal record",
+        parameters: [
+            new OA\Parameter(
+                name: "id",
+                in: "path",
+                required: true,
+                description: "The ID of the animal",
+                schema: new OA\Schema(type: "integer")
+            )
+        ],
         responses: [
             new OA\Response(
                 response: Response::HTTP_NO_CONTENT,

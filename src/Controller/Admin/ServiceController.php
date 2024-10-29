@@ -174,6 +174,15 @@ class ServiceController extends AbstractController
     #[OA\Post(
         summary: 'Update a service',
         description: 'Update a service record with new data or image',
+        parameters: [
+            new OA\Parameter(
+                name: "id",
+                in: "path",
+                required: true,
+                description: "The ID of the service",
+                schema: new OA\Schema(type: "integer")
+            )
+        ],
         requestBody: new OA\RequestBody(
             description: 'Service data object',
             content: new OA\MediaType(
@@ -325,6 +334,15 @@ class ServiceController extends AbstractController
     #[OA\Delete(
         summary: "Delete a service",
         description: "Remove a service record",
+        parameters: [
+            new OA\Parameter(
+                name: "id",
+                in: "path",
+                required: true,
+                description: "The ID of the service",
+                schema: new OA\Schema(type: "integer")
+            )
+        ],
         responses: [
             new OA\Response(
                 response: Response::HTTP_NO_CONTENT,

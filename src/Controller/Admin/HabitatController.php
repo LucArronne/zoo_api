@@ -173,6 +173,15 @@ class HabitatController extends AbstractController
     #[OA\Post(
         summary: 'Update a habitat',
         description: 'Update a animal with new data or images',
+        parameters: [
+            new OA\Parameter(
+                name: "id",
+                in: "path",
+                required: true,
+                description: "The ID of the habitat",
+                schema: new OA\Schema(type: "integer")
+            )
+        ],
         requestBody: new OA\RequestBody(
             description: 'Habitat data object',
             content: new OA\MediaType(
@@ -311,6 +320,15 @@ class HabitatController extends AbstractController
     #[OA\Delete(
         summary: "Delete a habitat",
         description: "Remove a habitat record",
+        parameters: [
+            new OA\Parameter(
+                name: "id",
+                in: "path",
+                required: true,
+                description: "The ID of the habitat",
+                schema: new OA\Schema(type: "integer")
+            )
+        ],
         responses: [
             new OA\Response(
                 response: Response::HTTP_NO_CONTENT,
