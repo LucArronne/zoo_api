@@ -15,6 +15,7 @@ use InvalidArgumentException;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -381,10 +382,19 @@ class AnimalController extends AbstractController
     )]
     public function deleteAnimal(
         Animal $animal,
-        EntityManagerInterface $em
+        EntityManagerInterface $em,
+        ParameterBagInterface $params,
     ): JsonResponse {
         $em->remove($animal);
         $em->flush();
+        foreach ($animal->getImages() as $image) {
+            $filePath = str_contains($image->getPath(), "http")
+                ? $params->get('uploads_directory') . '/' . basename($image->getPath())
+                : $params->get('uploads_directory') . '/' . $image->getPath();
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+        }
         return new JsonResponse(
             null,
             Response::HTTP_NO_CONTENT
