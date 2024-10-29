@@ -20,7 +20,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use OpenApi\Attributes as OA;
 
 #[Route(path: '/admin')]
-#[OA\Tag(name: 'admin')]
+#[OA\Tag(name: 'Admin')]
 class UserController extends AbstractController
 {
     #[Route('/users', name: 'users', methods: ['GET'])]

@@ -24,7 +24,7 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 #[Route(path: '/admin')]
-#[OA\Tag(name: 'admin')]
+#[OA\Tag(name: 'Admin')]
 class HabitatController extends AbstractController
 {
     #[Route('/habitats', name: 'createHabitat', methods: ['POST'])]
