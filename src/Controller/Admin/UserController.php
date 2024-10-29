@@ -60,7 +60,7 @@ class UserController extends AbstractController
         description: 'Create a new user record with role',
         requestBody: new OA\RequestBody(
             required: true,
-            description: 'User data in json format. User role, either ROLE_EMPLOYEE or ROLE_VETERINARY',
+            description: 'User data in json format. User role, either ROLE_EMPLOYEE or ROLE_VETERNARY',
             content: new OA\JsonContent(
                 type: 'object',
                 properties: [
@@ -82,7 +82,7 @@ class UserController extends AbstractController
                     new OA\Property(
                         property: "role",
                         type: "string",
-                        enum: ["ROLE_EMPLOYEE", "ROLE_VETERINARY"],
+                        enum: ["ROLE_EMPLOYEE", "ROLE_VETERNARY"],
                     )
                 ],
             ),
@@ -158,7 +158,7 @@ class UserController extends AbstractController
     #[OA\Put(
         summary: 'Update a user',
         requestBody: new OA\RequestBody(
-            description: 'User data in json format. User role, either ROLE_EMPLOYEE or ROLE_VETERINARY',
+            description: 'User data in json format. User role, either ROLE_EMPLOYEE or ROLE_VETERNARY',
             content: new OA\JsonContent(
                 type: 'object',
                 properties: [
@@ -180,7 +180,7 @@ class UserController extends AbstractController
                     new OA\Property(
                         property: "role",
                         type: "string",
-                        enum: ["ROLE_EMPLOYEE", "ROLE_VETERINARY"],
+                        enum: ["ROLE_EMPLOYEE", "ROLE_VETERNARY"],
                     )
                 ],
             ),
