@@ -33,7 +33,7 @@ class AnimalFoodController extends AbstractController
                 name: "animalId",
                 in: "path",
                 required: true,
-                description: "The Id of the user",
+                description: "The Id of the animal",
                 schema: new OA\Schema(type: "integer")
             )
         ],
@@ -128,7 +128,7 @@ class AnimalFoodController extends AbstractController
                 name: "animalId",
                 in: "path",
                 required: true,
-                description: "The Id of the user",
+                description: "The Id of the animal",
                 schema: new OA\Schema(type: "integer")
             )
         ],
