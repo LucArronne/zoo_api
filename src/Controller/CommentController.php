@@ -5,17 +5,32 @@ namespace App\Controller;
 use App\Entity\Comment;
 use App\Repository\CommentRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\Serializer\SerializerInterface;
+use OpenApi\Attributes as OA;
 
+#[IsGranted('ROLE_EMPLOYEE', message: 'Access denied')]
+#[OA\Tag(name: 'Employee')]
 class CommentController extends AbstractController
 {
     #[Route('/comments', name: 'comments', methods: ['GET'])]
-    #[IsGranted('ROLE_EMPLOYEE', message: 'Access denied')]
+    #[OA\Get(
+        summary: 'Get the list of comments',
+        description: 'Get the list of visitor\'s comments',
+    )]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'Returns the list of comments',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Comment::class))
+        )
+    )]
     public function getAllComments(
         CommentRepository $commentRepository,
         SerializerInterface $serializer
@@ -34,7 +49,31 @@ class CommentController extends AbstractController
     }
 
     #[Route('/comments/{id}', name: 'updateCommentStatus', methods: ['PUT'])]
-    #[IsGranted('ROLE_EMPLOYEE', message: 'Access denied')]
+    #[OA\Put(
+        summary: 'Update a comment status',
+        description: 'Use to validate or invalidate a comment',
+        parameters: [
+            new OA\Parameter(
+                name: "id",
+                in: "path",
+                required: true,
+                description: "The ID of the comment",
+                schema: new OA\Schema(type: "integer")
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_OK,
+                description: "Comment updated successfully.",
+                content: new OA\JsonContent(ref: new Model(type: Comment::class)),
+            ),
+            new OA\Response(
+                response: Response::HTTP_NOT_FOUND,
+                description: "Commment not found",
+            ),
+        ]
+
+    )]
     public function updateCommentStatus(
         Comment $comment,
         SerializerInterface $serializer,
@@ -57,7 +96,29 @@ class CommentController extends AbstractController
 
 
     #[Route('/comments/{id}', name: 'deleteComment', methods: ['DELETE'])]
-    #[IsGranted('ROLE_EMPLOYEE', message: 'Access denied')]
+    #[OA\Delete(
+        summary: 'Delete comment',
+        parameters: [
+            new OA\Parameter(
+                name: "id",
+                in: "path",
+                required: true,
+                description: "The ID of the comment",
+                schema: new OA\Schema(type: "integer")
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_NO_CONTENT,
+                description: "Comment deleted successfully.",
+            ),
+            new OA\Response(
+                response: Response::HTTP_NOT_FOUND,
+                description: "Commment not found",
+            ),
+        ]
+
+    )]
     public function deleteComment(
         Comment $comment,
         EntityManagerInterface $em
