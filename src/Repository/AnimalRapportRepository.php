@@ -5,6 +5,7 @@ namespace App\Repository;
 
 use App\Entity\AnimalRapport;
 use DateTime;
+use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -43,22 +44,21 @@ class AnimalRapportRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    public function findByAnimal(int $animal): array
+    public function findByCriteria(?int $animal = null, ?DateTimeInterface $date = null): array
     {
-        return $this->createQueryBuilder('a')
-            ->where('a.animal = :val')
-            ->setParameter('val', $animal)
-            ->getQuery()
-            ->getResult();
-    }
+        $qb = $this->createQueryBuilder('a');
 
-    public function findByDate(DateTime $date): array
-    {
-        return $this->createQueryBuilder('a')
-            ->where('a.date = :val')
-            ->setParameter('val', $date)
-            ->orderBy('a.id', 'DESC')
-            ->getQuery()
-            ->getResult();
+        if ($animal !== null) {
+            $qb->andWhere('a.animal = :animal')
+                ->setParameter('animal', $animal);
+        }
+
+        if ($date !== null) {
+            $qb->andWhere('a.date = :date')
+                ->setParameter('date', $date)
+                ->orderBy('a.id', 'DESC');
+        }
+
+        return $qb->getQuery()->getResult();
     }
 }
