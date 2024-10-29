@@ -23,7 +23,7 @@ class Animal
     #[Groups(['getRapports'])]
     private ?string $name = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull(message: "The race is not found")]
     #[Groups(['getRapports'])]

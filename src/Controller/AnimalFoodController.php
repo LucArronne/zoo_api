@@ -17,10 +17,11 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
+
+#[IsGranted('ROLE_EMPLOYEE', message: 'Access denied')]
 class AnimalFoodController extends AbstractController
 {
     #[Route('/foods/animal/{animalId}', name: 'addAnimalFood', methods: ['POST'])]
-    #[IsGranted('ROLE_EMPLOYEE', message: 'Access denied')]
     public function addAnimalFood(
         Request $request,
         int $animalId,
@@ -63,7 +64,6 @@ class AnimalFoodController extends AbstractController
     }
 
     #[Route('/foods/animal/{animalId}', name: 'getAnimalFoods', methods: ['GET'])]
-    #[IsGranted('ROLE_EMPLOYEE', message: 'Access denied')]
     public function getAnimalFoods(
         int $animalId,
         AnimalFoodRepository $animalFoodRepository,

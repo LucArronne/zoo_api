@@ -5,6 +5,7 @@ namespace App\Controller\Admin;
 use App\Dto\AnimalDto;
 use App\Entity\Animal;
 use App\Entity\AnimalImage;
+use App\Entity\Race;
 use App\Repository\HabitatRepository;
 use App\Repository\RaceRepository;
 use App\Utils\AnimalSerializer;
@@ -27,6 +28,36 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[OA\Tag(name: 'admin')]
 class AnimalController extends AbstractController
 {
+    #[Route('/races', name: 'races', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Get the list of animal races'
+    )]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'Returns the list of animal races',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Race::class))
+        )
+    )]
+    public function getUsers(
+        RaceRepository $raceRepository,
+        SerializerInterface $serializer
+    ): JsonResponse {
+
+        $result = $serializer->serialize(
+            $raceRepository->findAll(),
+            'json',
+        );
+
+        return new JsonResponse(
+            $result,
+            Response::HTTP_OK,
+            [],
+            true
+        );
+    }
+
     /**
      * Create a new animal  
      */
@@ -44,13 +75,16 @@ class AnimalController extends AbstractController
                     properties: [
                         new OA\Property(
                             property: 'data',
-                            type: 'string',
-                            required: ["name", "race", "habitat"],
+                            type: 'object',
                             description: 'Animal data in json format (required)',
-                            example: '{"name": "Lion", "race": 1, "habitat": 2}'
+                            properties: [
+                                new OA\Property(property: "name", type: "string", example: "Animal 1"),
+                                new OA\Property(property: "race", type: "string", example: "Race 1"),
+                                new OA\Property(property: "habitat", type: "integer", example: 1),
+                            ]
                         ),
                         new OA\Property(
-                            property: "images",
+                            property: "images[]",
                             type: "array",
                             items: new OA\Items(type: "string", format: "binary"),
                             description: "Image files for the animal. Allowed formats: jpg, jpeg, png. (optional)"
@@ -104,8 +138,11 @@ class AnimalController extends AbstractController
         $animal = new Animal();
         $animal->setName($data['name']);
 
-        $race = $data['race'] ?? -1;
-        $race = $raceRepository->find($race);
+        $raceName = $data['race'] ?? "-1";
+        $race = $raceRepository->findOneBy(["name" => $raceName]);
+        if (!$race) {
+            $race = (new Race())->setName($raceName);
+        }
         $animal->setRace($race);
 
         $habitat = $data['habitat'] ?? -1;
@@ -191,13 +228,16 @@ class AnimalController extends AbstractController
                     properties: [
                         new OA\Property(
                             property: 'data',
-                            type: 'string',
-                            required: ["name", "race", "habitat"],
+                            type: 'object',
                             description: 'Animal data in json format',
-                            example: '{"name": "Lion", "race": 1, "habitat": 2}'
+                            properties: [
+                                new OA\Property(property: "name", type: "string", example: "Animal 2"),
+                                new OA\Property(property: "race", type: "string", example: "Race 2"),
+                                new OA\Property(property: "habitat", type: "integer", example: 2),
+                            ]
                         ),
                         new OA\Property(
-                            property: "images",
+                            property: "images[]",
                             type: "array",
                             items: new OA\Items(type: "string", format: "binary"),
                             description: "Image files for the animal. Allowed formats: jpg, jpeg, png."
@@ -245,7 +285,11 @@ class AnimalController extends AbstractController
                 $updatedAnimal->setName($data['name']);
             }
             if (array_key_exists('race', $data)) {
-                $race = $raceRepository->find($data['race']);
+                $raceName = $data['race'] ?? "-1";
+                $race = $raceRepository->findOneBy(["name" => $raceName]);
+                if (!$race) {
+                    $race = (new Race())->setName($raceName);
+                }
                 $updatedAnimal->setRace($race);
             }
             if (array_key_exists('habitat',  $data)) {
