@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Dto\AnimalDto;
+use App\Dto\HabitatDto;
 use App\Entity\Comment;
 use App\Entity\Service;
 use App\Repository\AnimalImageRepository;
@@ -14,6 +16,7 @@ use App\Utils\AnimalSerializer;
 use App\Utils\FileUploader;
 use App\Utils\HabitatSerializer;
 use Doctrine\ORM\EntityManagerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,11 +25,30 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use OpenApi\Attributes as OA;
 
 #[Route(path: '/home')]
+#[OA\Tag(name: 'Visitor')]
 class HomeController extends AbstractController
 {
-    #[Route(path: '/images', name: 'images', methods: ['GET'])]
+    #[Route(path: '/random-images', name: 'randomImages', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Random images',
+        description: 'Get a random images of habitats and animals in the zoo',
+        security: [],
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_OK,
+                description: 'Return a random or empty list path',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(
+                        type: 'string'
+                    ),
+                )
+            )
+        ]
+    )]
     public function getImages(
         HabitatImageRepository $habitatImageRepository,
         AnimalImageRepository $animalImageRepository,
@@ -48,6 +70,22 @@ class HomeController extends AbstractController
     }
 
     #[Route(path: '/habitats', name: 'habitats', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Get the habitat list',
+        security: [],
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_OK,
+                description: 'Return the habitat list',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(
+                        ref: new Model(type: HabitatDto::class),
+                    ),
+                )
+            )
+        ]
+    )]
     public function getHabitas(
         HabitatRepository $habitatRepository,
         SerializerInterface $serializer,
@@ -65,6 +103,22 @@ class HomeController extends AbstractController
     }
 
     #[Route('/animals', name: 'animals', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Get the animal list',
+        security: [],
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_OK,
+                description: 'Return the animal list',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(
+                        ref: new Model(type: AnimalDto::class),
+                    ),
+                )
+            )
+        ]
+    )]
     public function getAnimals(
         AnimalRepository $animalRepository,
         SerializerInterface $serializer,
@@ -83,6 +137,22 @@ class HomeController extends AbstractController
 
 
     #[Route('/services', name: 'services', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Get the service list',
+        security: [],
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_OK,
+                description: 'Return the service list',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(
+                        ref: new Model(type: Service::class),
+                    ),
+                )
+            )
+        ]
+    )]
     public function getServices(
         ServiceRepository $serviceRepository,
         SerializerInterface $serializer,
@@ -105,6 +175,22 @@ class HomeController extends AbstractController
     }
 
     #[Route('/comments', name: 'approuved-comments', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Get the approuved comment list',
+        security: [],
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_OK,
+                description: 'Return the approuved comment list',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(
+                        ref: new Model(type: Comment::class),
+                    ),
+                )
+            )
+        ]
+    )]
     public function getApprouvedComments(CommentRepository $commentRepository, SerializerInterface $serializer): JsonResponse
     {
         $jsonList = $serializer->serialize($commentRepository->findValidComments(), 'json');
@@ -118,7 +204,41 @@ class HomeController extends AbstractController
     }
 
     #[Route('/comments', name: 'createComment', methods: ['POST'])]
-    public function createComment(
+    #[OA\Post(
+        summary: 'Add a new comment',
+        security: [],
+        requestBody: new OA\RequestBody(
+            required: true,
+            description: 'Comment data in json format ',
+            content: new OA\JsonContent(
+                type: 'object',
+                properties: [
+                    new OA\Property(
+                        property: "pseudo",
+                        type: "string",
+                        example: "John Doe"
+                    ),
+                    new OA\Property(
+                        property: "text",
+                        type: "text",
+                        example: "Cool website"
+                    ),
+                ],
+            ),
+        ),
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_CREATED,
+                description: "Comment created successfully.",
+                content: new OA\JsonContent(ref: new Model(type: Comment::class)),
+            ),
+            new OA\Response(
+                response: Response::HTTP_BAD_REQUEST,
+                description: "Invalid input data or validation error.",
+            )
+        ]
+
+    )]    public function createComment(
         Request $request,
         SerializerInterface $serializer,
         EntityManagerInterface $em,
