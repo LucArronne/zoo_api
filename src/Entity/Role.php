@@ -21,7 +21,7 @@ class Role
     private ?string $value = null;
 
     #[ORM\Column(length: 50)]
-    #[Groups(['getUsers'])]
+    #[Groups(['getUsers', 'getRapports'])]
     private ?string $name = null;
 
     /**
