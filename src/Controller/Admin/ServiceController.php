@@ -9,6 +9,7 @@ use InvalidArgumentException;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,10 +39,21 @@ class ServiceController extends AbstractController
                     properties: [
                         new OA\Property(
                             property: 'data',
-                            type: 'string',
+                            type: 'object',
                             required: ["name", "description"],
                             description: 'Service data in json format (required)',
-                            example: '{"name": "Guide", "description": "Guide service"}'
+                            properties: [
+                                new OA\Property(
+                                    property: 'name',
+                                    type: 'string',
+                                    example: "Service 1",
+                                ),
+                                new OA\Property(
+                                    property: 'description',
+                                    type: 'string',
+                                    example: "Description 1",
+                                ),
+                            ]
                         ),
                         new OA\Property(
                             property: "image",
@@ -171,9 +183,21 @@ class ServiceController extends AbstractController
                     properties: [
                         new OA\Property(
                             property: 'data',
-                            type: 'string',
-                            description: 'Habitat data in json format',
-                            example: '{"name": "Guide", "description": "Guide service"}'
+                            type: 'object',
+                            required: ["name", "description"],
+                            description: 'Service data in json format',
+                            properties: [
+                                new OA\Property(
+                                    property: 'name',
+                                    type: 'string',
+                                    example: "Service 2",
+                                ),
+                                new OA\Property(
+                                    property: 'description',
+                                    type: 'string',
+                                    example: "Description 2",
+                                ),
+                            ]
                         ),
                         new OA\Property(
                             property: "image",
@@ -211,7 +235,7 @@ class ServiceController extends AbstractController
         FileUploader $uploader,
         SerializerInterface $serializer,
         ValidatorInterface $validator,
-
+        ParameterBagInterface $params
     ): JsonResponse {
 
         $updatedService = $currentService;
@@ -241,6 +265,14 @@ class ServiceController extends AbstractController
                     $request->files->get("image"),
                     $allowedExtensions
                 );
+                if ($currentService->getImage()) {
+                    $filePath = str_contains($currentService->getImage(), "http")
+                        ? $params->get('uploads_directory') . '/' . basename($currentService->getImage())
+                        : $params->get('uploads_directory') . '/' . $currentService->getImage();
+                    if (file_exists($filePath)) {
+                        unlink($filePath);
+                    }
+                }
                 $updatedService->setImage($imageFileName);
             } catch (InvalidArgumentException $e) {
 
@@ -304,10 +336,21 @@ class ServiceController extends AbstractController
             )
         ]
     )]
-    public function deleteService(Service $service, EntityManagerInterface $em): JsonResponse
-    {
+    public function deleteService(
+        Service $service,
+        EntityManagerInterface $em,
+        ParameterBagInterface $params
+    ): JsonResponse {
         $em->remove($service);
         $em->flush();
+        if ($service->getImage()) {
+            $filePath = str_contains($service->getImage(), "http")
+                ? $params->get('uploads_directory') . '/' . basename($service->getImage())
+                : $params->get('uploads_directory') . '/' . $service->getImage();
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+        }
         return new JsonResponse(
             null,
             Response::HTTP_NO_CONTENT
