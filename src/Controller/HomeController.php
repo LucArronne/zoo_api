@@ -12,9 +12,9 @@ use App\Repository\CommentRepository;
 use App\Repository\HabitatImageRepository;
 use App\Repository\HabitatRepository;
 use App\Repository\ServiceRepository;
-use App\Utils\AnimalSerializer;
+use App\Utils\AnimalMapper;
 use App\Utils\FileUploader;
-use App\Utils\HabitatSerializer;
+use App\Utils\HabitatMapper;
 use Doctrine\ORM\EntityManagerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -89,10 +89,10 @@ class HomeController extends AbstractController
     public function getHabitas(
         HabitatRepository $habitatRepository,
         SerializerInterface $serializer,
-        HabitatSerializer $habitatSerializer
+        HabitatMapper $habitatSerializer
     ): JsonResponse {
 
-        $result = $habitatSerializer->serializeArray($habitatRepository->findAll());
+        $result = $habitatSerializer->convertToDtoArray($habitatRepository->findAll());
 
         return new JsonResponse(
             $serializer->serialize($result, 'json'),
@@ -122,10 +122,10 @@ class HomeController extends AbstractController
     public function getAnimals(
         AnimalRepository $animalRepository,
         SerializerInterface $serializer,
-        AnimalSerializer $animalSerializer,
+        AnimalMapper $animalSerializer,
     ): JsonResponse {
 
-        $result = $animalSerializer->serializeArray($animalRepository->findAll());
+        $result = $animalSerializer->convertToDtoArray($animalRepository->findAll());
 
         return new JsonResponse(
             $serializer->serialize($result, 'json'),
