@@ -51,20 +51,28 @@ class AppFixtures extends Fixture
         $userAdmin = new User();
         $userAdmin->setEmail("admin@zoo.org");
         $userAdmin->setRole($roleAdmin);
-        $userAdmin->setPassword($this->userPasswordHasher->hashPassword($userAdmin, "password"));
+        $userAdmin->setPassword($this->userPasswordHasher->hashPassword($userAdmin, "admin"));
 
         $manager->persist($userAdmin);
 
 
         $userEmployee = new User();
-        $userEmployee->setEmail("demo@zoo.org");
+        $userEmployee->setEmail("demo1@zoo.org");
         $userEmployee->setRole($roleEmployee);
         $userEmployee->setName("Demo");
-        $userEmployee->setPassword($this->userPasswordHasher->hashPassword($userEmployee, "password"));
+        $userEmployee->setPassword($this->userPasswordHasher->hashPassword($userEmployee, "demo1"));
 
         $manager->persist($userEmployee);
+        
+        $userVeternary = new User();
+        $userVeternary->setEmail("demo2@zoo.org");
+        $userVeternary->setRole($roleVeternaire);
+        $userVeternary->setName("Demo");
+        $userVeternary->setPassword($this->userPasswordHasher->hashPassword($userEmployee, "demo2"));
 
+        $manager->persist($userVeternary);
 
+/*
         // Generate comments
 
         for ($i = 0; $i < 10; $i++) {
@@ -128,7 +136,7 @@ class AppFixtures extends Fixture
             $manager->persist($animal);
             $manager->flush();
         }
-
+*/
 
         $manager->flush();
     }
