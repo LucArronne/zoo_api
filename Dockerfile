@@ -7,6 +7,8 @@ RUN apt update && apt install -y \
     libfreetype6-dev \
     libonig-dev \
     libxslt1-dev \
+    build-essential \
+    git \
     nginx \
     libssl-dev \
     default-mysql-client \
