@@ -5,8 +5,11 @@ namespace App\Controller\Admin;
 use App\Dto\HabitatDto;
 use App\Entity\Habitat;
 use App\Entity\HabitatImage;
+use App\Entity\Image;
+use App\Repository\HabitatImageRepository;
 use App\Utils\FileUploader;
 use App\Utils\HabitatSerializer;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Nelmio\ApiDocBundle\Annotation\Model;
@@ -47,10 +50,15 @@ class HabitatController extends AbstractController
                             properties: [
                                 new OA\Property(property: "name", type: "string", example: "Habitat 1"),
                                 new OA\Property(property: "description", type: "string", example: "Description 1"),
+                                new OA\Property(
+                                    property: "images",
+                                    type: "array",
+                                    items: new OA\Items(ref: new Model(type: Image::class)),
+                                ),
                             ]
                         ),
                         new OA\Property(
-                            property: "images[]",
+                            property: "files[]",
                             type: "array",
                             items: new OA\Items(type: "string", format: "binary"),
                             description: "Image files for the habitat. Allowed formats: jpg, jpeg, png. (optional)"
@@ -76,6 +84,7 @@ class HabitatController extends AbstractController
     public function createHabitat(
         Request $request,
         EntityManagerInterface $em,
+        HabitatImageRepository $habitatImageRepository,
         FileUploader $uploader,
         SerializerInterface $serializer,
         ValidatorInterface $validator,
@@ -110,13 +119,13 @@ class HabitatController extends AbstractController
             throw new ValidationFailedException($habitat, $violations);
         }
 
-        $habitatImages = $request->files->get("images");
+        $imageFiles = $request->files->get("files");
 
-        if ($habitatImages) {
+        if ($imageFiles) {
 
             $allowedExtensions = ['jpg', 'jpeg', 'png'];
 
-            foreach ($habitatImages as $image) {
+            foreach ($imageFiles as $image) {
                 try {
                     $imageFileName = $uploader->upload($image, $allowedExtensions);
                     $habitatImage = new HabitatImage();
@@ -156,10 +165,26 @@ class HabitatController extends AbstractController
             }
         }
 
+        $habitatImages = new ArrayCollection($habitat->getImages()->toArray());
+
+        $habitat->getImages()->clear();
+
+        foreach ($habitatImages as $image) {
+            $existingImage = $habitatImageRepository->find($image->getId() ?? -1);
+            if ($existingImage) {
+                $habitat->addImage($existingImage);
+            } else {
+                $habitat->addImage($image);
+            }
+        }
+
         $em->persist($habitat);
         $em->flush();
 
-        $result = $serializer->serialize($habitatSerializer->serialize($habitat), 'json');
+        $result = $serializer->serialize(
+            $habitatSerializer->serialize($habitat),
+            'json'
+        );
 
         return new JsonResponse(
             $result,
@@ -197,10 +222,15 @@ class HabitatController extends AbstractController
                             properties: [
                                 new OA\Property(property: "name", type: "string", example: "Habitat 2"),
                                 new OA\Property(property: "description", type: "string", example: "Description 2"),
+                                new OA\Property(
+                                    property: "images",
+                                    type: "array",
+                                    items: new OA\Items(ref: new Model(type: Image::class)),
+                                ),
                             ]
                         ),
                         new OA\Property(
-                            property: "images[]",
+                            property: "files[]",
                             type: "array",
                             items: new OA\Items(type: "string", format: "binary"),
                             description: "Image files for the habitat. Allowed formats: jpg, jpeg, png"
@@ -231,6 +261,7 @@ class HabitatController extends AbstractController
         Request $request,
         Habitat $currenthabitat,
         EntityManagerInterface $em,
+        HabitatImageRepository $habitatImageRepository,
         FileUploader $uploader,
         SerializerInterface $serializer,
         ValidatorInterface $validator,
@@ -256,11 +287,11 @@ class HabitatController extends AbstractController
             }
         }
 
-        if ($request->files->get("images")) {
+        if ($request->files->get("files")) {
 
             $allowedExtensions = ['jpg', 'jpeg', 'png'];
 
-            foreach ($request->files->get("images") as $image) {
+            foreach ($request->files->get("files") as $image) {
                 try {
                     $imageFileName = $uploader->upload($image, $allowedExtensions);
                     $habitatImage = new HabitatImage();
@@ -297,6 +328,19 @@ class HabitatController extends AbstractController
                         true,
                     );
                 }
+            }
+        }
+
+        $habitatImages = new ArrayCollection($updatedHabitat->getImages()->toArray());
+
+        $updatedHabitat->getImages()->clear();
+
+        foreach ($habitatImages as $image) {
+            $existingImage = $habitatImageRepository->find($image->getId() ?? -1);
+            if ($existingImage) {
+                $updatedHabitat->addImage($existingImage);
+            } else {
+                $updatedHabitat->addImage($image);
             }
         }
 
@@ -345,16 +389,19 @@ class HabitatController extends AbstractController
         EntityManagerInterface $em,
         ParameterBagInterface $params,
     ): JsonResponse {
-        $em->remove($habitat);
-        $em->flush();
         foreach ($habitat->getImages() as $image) {
-            $filePath = str_contains($image->getPath(), "http")
-                ? $params->get('uploads_directory') . '/' . basename($image->getPath())
-                : $params->get('uploads_directory') . '/' . $image->getPath();
-            if (file_exists($filePath)) {
-                unlink($filePath);
+            if ($image->getHabitats()->count() == 1) {
+                $filePath = str_contains($image->getPath(), "http")
+                    ? $params->get('uploads_directory') . '/' . basename($image->getPath())
+                    : $params->get('uploads_directory') . '/' . $image->getPath();
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+                $em->remove($image);
             }
         }
+        $em->remove($habitat);
+        $em->flush();
         return new JsonResponse(
             null,
             Response::HTTP_NO_CONTENT
