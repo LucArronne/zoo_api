@@ -8,7 +8,7 @@ use App\Entity\AnimalImage;
 use App\Entity\Race;
 use App\Repository\HabitatRepository;
 use App\Repository\RaceRepository;
-use App\Utils\AnimalSerializer;
+use App\Utils\AnimalMapper;
 use App\Utils\FileUploader;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
@@ -116,7 +116,7 @@ class AnimalController extends AbstractController
         FileUploader $uploader,
         SerializerInterface $serializer,
         ValidatorInterface $validator,
-        AnimalSerializer $animalSerializer,
+        AnimalMapper $animalSerializer,
     ): JsonResponse {
 
         if (!$request->get('data')) {
@@ -207,7 +207,7 @@ class AnimalController extends AbstractController
 
         return new JsonResponse(
             $serializer->serialize(
-                $animalSerializer->serialize($animal),
+                $animalSerializer->convertToDto($animal),
                 'json'
             ),
             Response::HTTP_CREATED,
@@ -283,7 +283,7 @@ class AnimalController extends AbstractController
         FileUploader $uploader,
         SerializerInterface $serializer,
         ValidatorInterface $validator,
-        AnimalSerializer $animalSerializer,
+        AnimalMapper $animalSerializer,
     ): JsonResponse {
 
         $updatedAnimal = $currentAnimal;
@@ -365,7 +365,7 @@ class AnimalController extends AbstractController
 
         return new JsonResponse(
             $serializer->serialize(
-                $animalSerializer->serialize($updatedAnimal),
+                $animalSerializer->convertToDto($updatedAnimal),
                 'json'
             ),
             Response::HTTP_OK,

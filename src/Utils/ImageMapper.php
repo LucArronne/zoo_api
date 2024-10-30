@@ -4,7 +4,7 @@ namespace App\Utils;
 
 use App\Entity\Image;
 
-class ImageToUrlSerializer
+class ImageMapper
 {
     private FileUploader $uploader;
 
@@ -13,16 +13,16 @@ class ImageToUrlSerializer
         $this->uploader = $uploader;
     }
 
-    public function serialize(Image $image): Image
+    public function convertToUrl(Image $image): Image
     {
         return (new Image())
             ->setId($image->getId())
             ->setPath($this->uploader->getFilePublicUrl($image->getPath()));
     }
-    public function serializeArray(array $images): array
+    public function convertToUrlArray(array $images): array
     {
         return array_map(function (Image $image) {
-            return $this->serialize($image);
+            return $this->convertToUrl($image);
         }, $images);
     }
 }

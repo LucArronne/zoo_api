@@ -8,8 +8,8 @@ use App\Entity\HabitatImage;
 use App\Entity\Image;
 use App\Repository\HabitatImageRepository;
 use App\Utils\FileUploader;
-use App\Utils\HabitatSerializer;
-use App\Utils\ImageToUrlSerializer;
+use App\Utils\HabitatMapper;
+use App\Utils\ImageMapper;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
@@ -46,11 +46,11 @@ class HabitatController extends AbstractController
     public function getHabitatImages(
         HabitatImageRepository $habitatImageRepository,
         SerializerInterface $serializer,
-        ImageToUrlSerializer $imageToUrlSerializer,
+        ImageMapper $imageToUrlSerializer,
     ): JsonResponse {
 
         $result = $serializer->serialize(
-            $imageToUrlSerializer->serializeArray($habitatImageRepository->findAll()),
+            $imageToUrlSerializer->convertToUrlArray($habitatImageRepository->findAll()),
             'json',
         );
 
@@ -120,7 +120,7 @@ class HabitatController extends AbstractController
         FileUploader $uploader,
         SerializerInterface $serializer,
         ValidatorInterface $validator,
-        HabitatSerializer $habitatSerializer,
+        HabitatMapper $habitatSerializer,
     ): JsonResponse {
 
         if (!$request->get('data')) {
@@ -209,7 +209,7 @@ class HabitatController extends AbstractController
         $em->flush();
 
         $result = $serializer->serialize(
-            $habitatSerializer->serialize($habitat),
+            $habitatSerializer->convertToDto($habitat),
             'json'
         );
 
@@ -292,7 +292,7 @@ class HabitatController extends AbstractController
         FileUploader $uploader,
         SerializerInterface $serializer,
         ValidatorInterface $validator,
-        HabitatSerializer $habitatSerializer,
+        HabitatMapper $habitatSerializer,
     ): JsonResponse {
 
         $updatedHabitat = $currenthabitat;
@@ -369,7 +369,7 @@ class HabitatController extends AbstractController
         $em->flush();
 
         $result = $serializer->serialize(
-            $habitatSerializer->serialize($updatedHabitat),
+            $habitatSerializer->convertToDto($updatedHabitat),
             'json'
         );
 
