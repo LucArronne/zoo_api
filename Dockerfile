@@ -8,6 +8,7 @@ RUN apt update && apt install -y \
     libonig-dev \
     libxslt1-dev \
     build-essential \
+    unzip \
     git \
     nginx \
     libssl-dev \
@@ -15,6 +16,7 @@ RUN apt update && apt install -y \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd \
     && docker-php-ext-enable opcache \
+    && docker-php-ext-install zip \
     && docker-php-ext-install xsl 
 
 RUN docker-php-ext-install  pdo_mysql \
