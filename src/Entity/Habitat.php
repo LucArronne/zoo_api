@@ -36,7 +36,8 @@ class Habitat
     /**
      * @var Collection<int, HabitatImage>
      */
-    #[ORM\OneToMany(targetEntity: HabitatImage::class, mappedBy: 'habitat', orphanRemoval: true, cascade: ['persist'])]
+    #[ORM\ManyToMany(targetEntity: HabitatImage::class, inversedBy: 'habitats', cascade: ['persist'])]
+    #[ORM\JoinTable(name: "habitat_habitat_image")]
     private Collection $images;
 
     public function __construct()
@@ -116,7 +117,6 @@ class Habitat
     {
         if (!$this->images->contains($image)) {
             $this->images->add($image);
-            $image->setHabitat($this);
         }
 
         return $this;
@@ -124,12 +124,7 @@ class Habitat
 
     public function removeImage(HabitatImage $image): static
     {
-        if ($this->images->removeElement($image)) {
-            // set the owning side to null (unless already changed)
-            if ($image->getHabitat() === $this) {
-                $image->setHabitat(null);
-            }
-        }
+        $this->images->removeElement($image);
 
         return $this;
     }
