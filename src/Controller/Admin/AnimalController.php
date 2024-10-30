@@ -29,7 +29,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[OA\Tag(name: 'Admin')]
 class AnimalController extends AbstractController
 {
-    #[Route('/races', name: 'races', methods: ['GET'])]
+    #[Route('/animals/races', name: 'races', methods: ['GET'])]
     #[OA\Get(
         summary: 'Get the list of animal races'
     )]
