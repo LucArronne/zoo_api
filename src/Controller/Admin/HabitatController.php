@@ -113,6 +113,14 @@ class HabitatController extends AbstractController
             'json'
         );
 
+        foreach ($habitat->getImages() as $image) {
+            $habitat->removeImage($image);
+            $habitatImage = $habitatImageRepository->find($image->getId() ?? -1);
+            if ($habitatImage) {
+                $habitat->addImage($habitatImage);
+            }
+        }
+
         $violations = $validator->validate($habitat);
 
         if ($violations->count() > 0) {
@@ -162,19 +170,6 @@ class HabitatController extends AbstractController
                         true,
                     );
                 }
-            }
-        }
-
-        $habitatImages = new ArrayCollection($habitat->getImages()->toArray());
-
-        $habitat->getImages()->clear();
-
-        foreach ($habitatImages as $image) {
-            $existingImage = $habitatImageRepository->find($image->getId() ?? -1);
-            if ($existingImage) {
-                $habitat->addImage($existingImage);
-            } else {
-                $habitat->addImage($image);
             }
         }
 
@@ -279,6 +274,13 @@ class HabitatController extends AbstractController
                     AbstractNormalizer::OBJECT_TO_POPULATE => $currenthabitat
                 ]
             );
+            foreach ($updatedHabitat->getImages() as $image) {
+                $updatedHabitat->removeImage($image);
+                $habitatImage = $habitatImageRepository->find($image->getId() ?? -1);
+                if ($habitatImage) {
+                    $updatedHabitat->addImage($habitatImage);
+                }
+            }
 
             $violations = $validator->validate($updatedHabitat);
 
@@ -328,19 +330,6 @@ class HabitatController extends AbstractController
                         true,
                     );
                 }
-            }
-        }
-
-        $habitatImages = new ArrayCollection($updatedHabitat->getImages()->toArray());
-
-        $updatedHabitat->getImages()->clear();
-
-        foreach ($habitatImages as $image) {
-            $existingImage = $habitatImageRepository->find($image->getId() ?? -1);
-            if ($existingImage) {
-                $updatedHabitat->addImage($existingImage);
-            } else {
-                $updatedHabitat->addImage($image);
             }
         }
 
