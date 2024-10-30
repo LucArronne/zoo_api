@@ -59,6 +59,9 @@
             "config/packages/lexik_jwt_authentication.yaml"
         ]
     },
+    "nakato53/symfony-vercel-bundle": {
+        "version": "0.5"
+    },
     "nelmio/api-doc-bundle": {
         "version": "4.32",
         "recipe": {
