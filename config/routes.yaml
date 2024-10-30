@@ -16,3 +16,10 @@ uploads_path:
     path: /uploads/{fileName}
     defaults: { _controller: null }
 
+index_redirect:
+    path: /
+    controller: Symfony\Bundle\FrameworkBundle\Controller\RedirectController
+    defaults:
+        route: app.swagger_ui
+        permanent: true
+
