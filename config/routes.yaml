@@ -3,3 +3,16 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+app_routes:
+    resource: '../src/Controller/'
+    type: attribute
+    prefix: /api
+
+api_login_check:
+    path: /api/login
+
+uploads_path:
+    path: /uploads/{fileName}
+    defaults: { _controller: null }
+
