@@ -9,6 +9,7 @@ use App\Entity\Image;
 use App\Repository\HabitatImageRepository;
 use App\Utils\FileUploader;
 use App\Utils\HabitatSerializer;
+use App\Utils\ImageToUrlSerializer;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
@@ -30,6 +31,37 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 #[OA\Tag(name: 'Admin')]
 class HabitatController extends AbstractController
 {
+    #[Route('/habitats/images', name: 'habitatImages', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Get the list of habitats images'
+    )]
+    #[OA\Response(
+        response: Response::HTTP_OK,
+        description: 'Returns the list of habitats images',
+        content: new OA\JsonContent(
+            type: 'array',
+            items: new OA\Items(ref: new Model(type: Image::class))
+        )
+    )]
+    public function getHabitatImages(
+        HabitatImageRepository $habitatImageRepository,
+        SerializerInterface $serializer,
+        ImageToUrlSerializer $imageToUrlSerializer,
+    ): JsonResponse {
+
+        $result = $serializer->serialize(
+            $imageToUrlSerializer->serializeArray($habitatImageRepository->findAll()),
+            'json',
+        );
+
+        return new JsonResponse(
+            $result,
+            Response::HTTP_OK,
+            [],
+            true
+        );
+    }
+
     #[Route('/habitats', name: 'createHabitat', methods: ['POST'])]
     #[OA\Post(
         summary: 'Create a new habitat',
