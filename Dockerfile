@@ -42,5 +42,5 @@ RUN mkdir -p /var/www/html/public/uploads && \
 
 RUN composer install
 
-EXPOSE 9000
+EXPOSE 10000
 CMD ["php-fpm"]
