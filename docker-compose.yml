@@ -11,7 +11,7 @@ services:
       - ./docker/php/conf.d:/usr/local/etc/php/conf.d
       - uploads_data:/var/www/html/public/uploads
     expose:
-      - 10000
+      - 9000
     depends_on:
       - mysql
   nginx:
@@ -23,7 +23,7 @@ services:
       - cache_data:/var/www/html/var
       - .:/var/www/html
     ports:
-      - "10000:80"
+      - "9000:80"
     depends_on:
       - app
   mysql:
