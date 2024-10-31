@@ -11,7 +11,7 @@ services:
       - ./docker/php/conf.d:/usr/local/etc/php/conf.d
       - uploads_data:/var/www/html/public/uploads
     expose:
-      - 9000
+      - 10000
     depends_on:
       - mysql
   nginx:
