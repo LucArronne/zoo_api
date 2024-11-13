@@ -12,6 +12,9 @@ app_routes:
 api_login_check:
     path: /api/login
 
+api_refresh_token:
+    path: /api/refresh-token
+
 uploads_path:
     path: /uploads/{fileName}
     defaults: { _controller: null }
