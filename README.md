@@ -38,7 +38,7 @@ CREATE DATABASE
 Importer le fichier MySQL
 
 ```bash
-mysql -u votre-utilisateur -p arcadia_zoo < arcadia_zoo.sql
+mysql -u votre-utilisateur -p zoodb < zoodb.sql
 ```
 -Installer Xampp (derniere version de préference pour l'integration de php 8.1 ou supérieur)
 
