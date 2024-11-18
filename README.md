@@ -12,7 +12,7 @@ Avant de commencer, assurez-vous d'avoir installé les éléments suivants sur v
 - Un éditeur de texte tel que **Visual Studio Code**
 - **Postman** (optionnel) pour tester les API si nécessaire
 
-## Étapes pour déployer l'application en local
+## Étapes pour déployer lancer le site en local
 
 ### 1. Cloner le dépôt
 
