@@ -50,7 +50,7 @@ Composer : Gestionnaire de dépendances PHP
 ```
 symfony -v
 ```
- configurer les variables d'environement dans le fichier env symfony
+ - configurer les variables d'environement dans le fichier env symfony
  
 - lancer Symfony 
 ```bash
