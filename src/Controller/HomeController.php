@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Dto\AnimalDto;
 use App\Dto\HabitatDto;
 use App\Entity\Comment;
+use App\Entity\Email as EntityEmail;
 use App\Entity\Service;
 use App\Repository\AnimalImageRepository;
 use App\Repository\AnimalRepository;
@@ -26,6 +27,8 @@ use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use OpenApi\Attributes as OA;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 
 #[Route(path: '/home')]
 #[OA\Tag(name: 'Visitor')]
@@ -238,7 +241,8 @@ class HomeController extends AbstractController
             )
         ]
 
-    )]    public function createComment(
+    )]
+    public function createComment(
         Request $request,
         SerializerInterface $serializer,
         EntityManagerInterface $em,
@@ -261,6 +265,91 @@ class HomeController extends AbstractController
             Response::HTTP_CREATED,
             [],
             true
+        );
+    }
+
+    #[Route('/send-email', name: 'sendEmail', methods: ['POST'])]
+    #[OA\Post(
+        summary: 'Send email',
+        security: [],
+        requestBody: new OA\RequestBody(
+            required: true,
+            description: 'Email data in json format ',
+            content: new OA\JsonContent(
+                type: 'object',
+                properties: [
+                    new OA\Property(
+                        property: "adress",
+                        type: "email",
+                        example: "demo@example.com"
+                    ),
+                    new OA\Property(
+                        property: "subject",
+                        type: "string",
+                        example: "subject"
+                    ),
+                    new OA\Property(
+                        property: "text",
+                        type: "string",
+                        example: "text"
+                    ),
+                    new OA\Property(
+                        property: "name",
+                        type: "string",
+                        example: "name"
+                    ),
+                ],
+            ),
+        ),
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_CREATED,
+                description: "Email sent successfully.",
+            ),
+            new OA\Response(
+                response: Response::HTTP_BAD_REQUEST,
+                description: "Invalid input data or validation error.",
+            )
+        ]
+
+    )]
+    public function sendEmail(
+        Request $request,
+        EntityManagerInterface $em,
+        MailerInterface $mailer,
+        SerializerInterface $serializer,
+        ValidatorInterface $validator,
+    ): Response {
+        $entityEmail = $serializer->deserialize(
+            $request->getContent(),
+            EntityEmail::class,
+            'json'
+        );
+
+        $violations = $validator->validate($entityEmail);
+
+        if ($violations->count() > 0) {
+            throw new ValidationFailedException($entityEmail, $violations);
+        }
+
+        $email = (new Email())
+            ->from('tsiorymauyz@gmail.com')
+            ->to('tsiorymauyz@gmail.com', 'hajarjh@yahoo.fr')
+            ->subject($entityEmail->getSubject())
+            ->html('<div>
+            <p>Message de <b>' . ucwords($entityEmail->getName() ?? 'anonyme') . '</b> par ' . $entityEmail->getAdress() . '</p>
+            <p>' . $entityEmail->getText() . '</p></div>');
+
+        $mailer->send($email);
+
+        $em->persist($entityEmail);
+        $em->flush();
+
+        return new JsonResponse(
+            "Email sent successfully",
+            Response::HTTP_CREATED,
+            [],
+            false
         );
     }
 }
