@@ -1,0 +1,5 @@
+# config/packages/gesdinet_jwt_refresh_token.yaml
+gesdinet_jwt_refresh_token:
+    refresh_token_entity: App\Entity\RefreshToken
+    ttl: 604800
+    ttl_update: true
