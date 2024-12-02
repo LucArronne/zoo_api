@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Document\AnimalVisit;
 use App\Dto\AnimalDto;
 use App\Entity\Animal;
 use App\Entity\AnimalImage;
@@ -10,6 +11,7 @@ use App\Repository\HabitatRepository;
 use App\Repository\RaceRepository;
 use App\Utils\AnimalMapper;
 use App\Utils\FileUploader;
+use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ORM\EntityManagerInterface;
 use InvalidArgumentException;
 use Nelmio\ApiDocBundle\Annotation\Model;
@@ -416,6 +418,94 @@ class AnimalController extends AbstractController
         return new JsonResponse(
             null,
             Response::HTTP_NO_CONTENT
+        );
+    }
+
+    #[Route('/animals/visit', name: 'getAnimalsVisit', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Get animals visit',
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_OK,
+                description: "List of animal visits",
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(ref: new Model(type: AnimalVisit::class, groups: ['getVisitors']))
+                )
+            )
+        ]
+
+    )]
+    public function getAnimalsVisit(
+        DocumentManager $dm,
+        SerializerInterface $serializer
+    ): JsonResponse {
+
+        $animalsVisit = $dm->getRepository(AnimalVisit::class)->findAll();
+
+        return new JsonResponse(
+            $serializer->serialize(
+                $animalsVisit,
+                'json',
+                ["groups" => "getVisitors"]
+            ),
+            Response::HTTP_OK,
+            [],
+            true
+        );
+    }
+
+    #[Route('/animals/visit/{id}', name: 'getAnimalVisit', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Get a animal visit count',
+        parameters: [
+            new OA\Parameter(
+                name: "id",
+                in: "path",
+                required: true,
+                description: "The ID of the animal",
+                schema: new OA\Schema(type: "integer")
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_OK,
+                description: "Animal visit data",
+                content: new OA\JsonContent(ref: new Model(type: AnimalVisit::class, groups: ["getVisitors"])),
+            ),
+            new OA\Response(
+                response: Response::HTTP_NOT_FOUND,
+                description: "Animal not found",
+            ),
+        ]
+
+    )]
+    public function getAnimalVisit(
+        Animal $animal,
+        EntityManagerInterface $em,
+        DocumentManager $dm,
+        SerializerInterface $serializer
+    ): JsonResponse {
+
+        $animalVisit = $dm->getRepository(AnimalVisit::class)->findOneBy(['animalId' => $animal->getId()]);
+
+        if (!$animalVisit) {
+            $animalVisit = new AnimalVisit();
+            $animalVisit->setAnimalId($animal->getId());
+            $animalVisit->setAnimalName($animal->getName());
+            $dm->persist($animalVisit);
+            $dm->flush();
+        }
+
+        return new JsonResponse(
+            $serializer->serialize(
+                $animalVisit,
+                'json',
+                ["groups" => "getVisitors"]
+            ),
+            Response::HTTP_OK,
+            [],
+            true
         );
     }
 }
