@@ -2,10 +2,13 @@
 
 namespace App\Controller;
 
+use App\Document\AnimalVisit;
 use App\Dto\AnimalDto;
 use App\Dto\HabitatDto;
+use App\Entity\Animal;
 use App\Entity\Comment;
 use App\Entity\Email as EntityEmail;
+use App\Entity\Habitat;
 use App\Entity\Service;
 use App\Repository\AnimalImageRepository;
 use App\Repository\AnimalRepository;
@@ -16,6 +19,7 @@ use App\Repository\ServiceRepository;
 use App\Utils\AnimalMapper;
 use App\Utils\FileUploader;
 use App\Utils\HabitatMapper;
+use Doctrine\ODM\MongoDB\DocumentManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -83,7 +87,7 @@ class HomeController extends AbstractController
                 content: new OA\JsonContent(
                     type: 'array',
                     items: new OA\Items(
-                        ref: new Model(type: HabitatDto::class),
+                        ref: new Model(type: HabitatDto::class, groups: ['getHabitats']),
                     ),
                 )
             )
@@ -98,7 +102,55 @@ class HomeController extends AbstractController
         $result = $habitatSerializer->convertToDtoArray($habitatRepository->findAll());
 
         return new JsonResponse(
-            $serializer->serialize($result, 'json'),
+            $serializer->serialize(
+                $result,
+                'json',
+                ["groups" => "getHabitats"]
+            ),
+            Response::HTTP_OK,
+            [],
+            true,
+        );
+    }
+
+    #[Route(path: '/habitats/{id}', name: 'findHabitat', methods: ['GET'])]
+    #[OA\Get(
+        summary: "Find a habitat",
+        description: "Find a habitat record",
+        parameters: [
+            new OA\Parameter(
+                name: "id",
+                in: "path",
+                required: true,
+                description: "The ID of the habitat",
+                schema: new OA\Schema(type: "integer")
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_OK,
+                description: "Habitat found",
+                content: new OA\JsonContent(ref: new Model(type: HabitatDto::class))
+            ),
+            new OA\Response(
+                response: Response::HTTP_NOT_FOUND,
+                description: "Habitat not found."
+            )
+        ]
+    )]
+    public function findHabitat(
+        Habitat $habitat,
+        EntityManagerInterface $em,
+        SerializerInterface $serializer,
+        HabitatMapper $habitatSerializer,
+    ): JsonResponse {
+        $result = $serializer->serialize(
+            $habitatSerializer->convertToDto($habitat),
+            'json'
+        );
+
+        return new JsonResponse(
+            $result,
             Response::HTTP_OK,
             [],
             true,
@@ -350,6 +402,62 @@ class HomeController extends AbstractController
             Response::HTTP_CREATED,
             [],
             false
+        );
+    }
+
+    #[Route('/animals/{id}', name: 'updateAnimalVisit', methods: ['PUT'])]
+    #[OA\Put(
+        summary: 'Update a animal visit count',
+        parameters: [
+            new OA\Parameter(
+                name: "id",
+                in: "path",
+                required: true,
+                description: "The ID of the animal",
+                schema: new OA\Schema(type: "integer")
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_OK,
+                description: "Animal visit updated successfully.",
+                content: new OA\JsonContent(ref: new Model(type: AnimalVisit::class, groups: ["getVisitors"])),
+            ),
+            new OA\Response(
+                response: Response::HTTP_NOT_FOUND,
+                description: "Animal not found",
+            ),
+        ]
+
+    )]
+    public function updateAnimalVisit(
+        Animal $animal,
+        EntityManagerInterface $em,
+        DocumentManager $dm,
+        SerializerInterface $serializer
+    ): JsonResponse {
+
+        $animalVisit = $dm->getRepository(AnimalVisit::class)->findOneBy(['animalId' => $animal->getId()]);
+
+        if (!$animalVisit) {
+            $animalVisit = new AnimalVisit();
+            $animalVisit->setAnimalId($animal->getId());
+            $animalVisit->setAnimalName($animal->getName());
+            $dm->persist($animalVisit);
+        }
+
+        $animalVisit->incrementVisitCount();
+        $dm->flush();
+
+        return new JsonResponse(
+            $serializer->serialize(
+                $animalVisit,
+                'json',
+                ["groups" => "getVisitors"]
+            ),
+            Response::HTTP_OK,
+            [],
+            true
         );
     }
 }
