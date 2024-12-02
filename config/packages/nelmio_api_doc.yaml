@@ -28,8 +28,33 @@ nelmio_api_doc:
                                 application/json:
                                     schema:
                                         $ref: '#/components/schemas/Token'
+            /api/refresh-token:
+                post:
+                    operationId: postRefreshToken
+                    tags:
+                        - Token
+                    summary: Refresh the JWT token
+                    security: []
+                    requestBody:
+                        description: RefreshToken
+                        content:
+                            application/json:
+                                schema:
+                                    $ref: '#/components/schemas/RefreshToken'
+                    responses:
+                        '200':
+                            description: The JWT token
+                            content:
+                                application/json:
+                                    schema:
+                                        $ref: '#/components/schemas/Token'
         components:
             schemas:
+                RefreshToken:
+                    type: object
+                    properties:
+                        refresh_token:
+                            type: string
                 Token:
                     type: object
                     properties:
