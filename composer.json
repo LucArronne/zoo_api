@@ -12,7 +12,7 @@
         "doctrine/doctrine-bundle": "^2.13",
         "doctrine/doctrine-migrations-bundle": "^3.3",
         "doctrine/mongodb-odm": "*",
-        "doctrine/mongodb-odm-bundle": "*",
+        "doctrine/mongodb-odm-bundle": "^5.1",
         "doctrine/orm": "^3.3",
         "gesdinet/jwt-refresh-token-bundle": "*",
         "lexik/jwt-authentication-bundle": "^3.1",
