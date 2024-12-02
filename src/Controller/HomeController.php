@@ -8,6 +8,7 @@ use App\Dto\HabitatDto;
 use App\Entity\Animal;
 use App\Entity\Comment;
 use App\Entity\Email as EntityEmail;
+use App\Entity\Habitat;
 use App\Entity\Service;
 use App\Repository\AnimalImageRepository;
 use App\Repository\AnimalRepository;
@@ -86,7 +87,7 @@ class HomeController extends AbstractController
                 content: new OA\JsonContent(
                     type: 'array',
                     items: new OA\Items(
-                        ref: new Model(type: HabitatDto::class),
+                        ref: new Model(type: HabitatDto::class, groups: ['getHabitats']),
                     ),
                 )
             )
@@ -101,7 +102,55 @@ class HomeController extends AbstractController
         $result = $habitatSerializer->convertToDtoArray($habitatRepository->findAll());
 
         return new JsonResponse(
-            $serializer->serialize($result, 'json'),
+            $serializer->serialize(
+                $result,
+                'json',
+                ["groups" => "getHabitats"]
+            ),
+            Response::HTTP_OK,
+            [],
+            true,
+        );
+    }
+
+    #[Route(path: '/habitats/{id}', name: 'findHabitat', methods: ['GET'])]
+    #[OA\Get(
+        summary: "Find a habitat",
+        description: "Find a habitat record",
+        parameters: [
+            new OA\Parameter(
+                name: "id",
+                in: "path",
+                required: true,
+                description: "The ID of the habitat",
+                schema: new OA\Schema(type: "integer")
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_OK,
+                description: "Habitat found",
+                content: new OA\JsonContent(ref: new Model(type: HabitatDto::class))
+            ),
+            new OA\Response(
+                response: Response::HTTP_NOT_FOUND,
+                description: "Habitat not found."
+            )
+        ]
+    )]
+    public function findHabitat(
+        Habitat $habitat,
+        EntityManagerInterface $em,
+        SerializerInterface $serializer,
+        HabitatMapper $habitatSerializer,
+    ): JsonResponse {
+        $result = $serializer->serialize(
+            $habitatSerializer->convertToDto($habitat),
+            'json'
+        );
+
+        return new JsonResponse(
+            $result,
             Response::HTTP_OK,
             [],
             true,
