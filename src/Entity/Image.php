@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\MappedSuperclass]
@@ -12,10 +13,11 @@ class Image
     #[ORM\GeneratedValue]
     #[ORM\Column]
     #[Assert\NotNull(message: "Id can't be null")]
+    #[Groups(["getHabitats"])]
     protected ?int $id = null;
 
     #[ORM\Column(length: 255, unique: true)]
-
+    #[Groups(["getHabitats"])]
     #[Assert\NotBlank(message: "Path is required")]
     protected ?string $path = null;
 
