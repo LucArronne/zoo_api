@@ -116,6 +116,7 @@ class HomeController extends AbstractController
     #[Route(path: '/habitats/{id}', name: 'findHabitat', methods: ['GET'])]
     #[OA\Get(
         summary: "Find a habitat",
+        security: [],
         description: "Find a habitat record",
         parameters: [
             new OA\Parameter(
@@ -408,6 +409,7 @@ class HomeController extends AbstractController
     #[Route('/animals/{id}', name: 'updateAnimalVisit', methods: ['PUT'])]
     #[OA\Put(
         summary: 'Update a animal visit count',
+        security: [],
         parameters: [
             new OA\Parameter(
                 name: "id",
