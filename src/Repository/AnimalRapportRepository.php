@@ -44,13 +44,13 @@ class AnimalRapportRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    public function findByCriteria(?int $animal = null, ?DateTimeInterface $date = null): array
+    public function findByCriteria(?int $animalId = null, ?DateTimeInterface $date = null): array
     {
         $qb = $this->createQueryBuilder('a');
 
-        if ($animal !== null) {
+        if ($animalId !== null) {
             $qb->andWhere('a.animal = :animal')
-                ->setParameter('animal', $animal);
+                ->setParameter('animal', $animalId);
         }
 
         if ($date !== null) {
@@ -60,5 +60,15 @@ class AnimalRapportRepository extends ServiceEntityRepository
         }
 
         return $qb->getQuery()->getResult();
+    }
+    public function findAnimalLastRapport(int $animalId): ?AnimalRapport
+    {
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.animal = :animal')
+            ->setParameter('animal', $animalId)
+            ->orderBy('a.date', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
     }
 }
