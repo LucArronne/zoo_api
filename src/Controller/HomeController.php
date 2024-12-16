@@ -6,11 +6,13 @@ use App\Document\AnimalVisit;
 use App\Dto\AnimalDto;
 use App\Dto\HabitatDto;
 use App\Entity\Animal;
+use App\Entity\AnimalRapport;
 use App\Entity\Comment;
 use App\Entity\Email as EntityEmail;
 use App\Entity\Habitat;
 use App\Entity\Service;
 use App\Repository\AnimalImageRepository;
+use App\Repository\AnimalRapportRepository;
 use App\Repository\AnimalRepository;
 use App\Repository\CommentRepository;
 use App\Repository\HabitatImageRepository;
@@ -456,6 +458,62 @@ class HomeController extends AbstractController
                 $animalVisit,
                 'json',
                 ["groups" => "getVisitors"]
+            ),
+            Response::HTTP_OK,
+            [],
+            true
+        );
+    }
+    
+    #[Route('/animals/last-rapport/{id}', name: 'getAnimalLastRapport', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Get the last rapport of an animal',
+        security: [],
+        parameters: [
+            new OA\Parameter(
+                name: "id",
+                in: "path",
+                required: true,
+                description: "The ID of the animal",
+                schema: new OA\Schema(type: "integer")
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: Response::HTTP_OK,
+                description: "The last rapport of an animal",
+                content: new OA\JsonContent(ref: new Model(type: AnimalRapport::class, groups: ["getRapport"])),
+            ),
+            new OA\Response(
+                response: Response::HTTP_NOT_FOUND,
+                description: "Animal or animal rapport not found",
+            ),
+        ]
+
+    )]
+    public function getAnimalLastRapport(
+        int $id,
+        AnimalRapportRepository $animalRapportRepository,
+        SerializerInterface $serializer
+    ): JsonResponse {
+
+        $animalRapport = $animalRapportRepository->findAnimalLastRapport($id);
+
+        if (!$animalRapport) {
+            return new JsonResponse(
+                [
+                    "status" => Response::HTTP_NOT_FOUND,
+                    "message" => "Animal or animal rapport not found"
+                ],
+                Response::HTTP_NOT_FOUND,
+            );
+        }
+
+        return new JsonResponse(
+            $serializer->serialize(
+                $animalRapport,
+                'json',
+                ["groups" => "getRapport"]
             ),
             Response::HTTP_OK,
             [],
