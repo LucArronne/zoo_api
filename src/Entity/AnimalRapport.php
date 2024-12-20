@@ -19,26 +19,26 @@ class AnimalRapport
 
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank(message: "The state is required")]
-    #[Groups(['getRapports'])]
+    #[Groups(['getRapports', 'getRapport'])]
     private ?string $state = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank(message: "The food is required")]
-    #[Groups(['getRapports'])]
+    #[Groups(['getRapports', 'getRapport'])]
     private ?string $food = null;
 
     #[ORM\Column]
     #[Assert\NotBlank(message: "The quantity is required")]
-    #[Groups(['getRapports'])]
+    #[Groups(['getRapports', 'getRapport'])]
     private ?float $quantity = null;
 
     #[ORM\Column(type: Types::DATE_IMMUTABLE)]
     #[Assert\NotNull(message: "The date is required")]
-    #[Groups(['getRapports'])]
+    #[Groups(['getRapports', 'getRapport'])]
     private ?\DateTimeImmutable $date = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['getRapports'])]
+    #[Groups(['getRapports', 'getRapport'])]
     private ?string $details = null;
 
     #[ORM\ManyToOne]
