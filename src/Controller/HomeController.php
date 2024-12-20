@@ -389,7 +389,7 @@ class HomeController extends AbstractController
 
         $email = (new Email())
             ->from('tsiorymauyz@gmail.com')
-            ->to('tsyourytiavina@yahoo.fr', 'hajarjh@yahoo.fr')
+            ->to( 'hajarjh@yahoo.fr')
             ->subject($entityEmail->getSubject())
             ->html('<div>
             <p>Message de <b>' . ucwords($entityEmail->getName() ?? 'anonyme') . '</b> par ' . $entityEmail->getAdress() . '</p>
