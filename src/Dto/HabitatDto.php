@@ -5,11 +5,17 @@ namespace  App\Dto;
 use App\Entity\Image;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Attributes as OA;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 class HabitatDto
 {
+    #[Groups(["getHabitats"])]
     private int $id;
+
+    #[Groups(["getHabitats"])]
     private string  $name;
+
+    #[Groups(["getHabitats"])]
     private string $description;
 
     #[OA\Property(
@@ -22,6 +28,8 @@ class HabitatDto
         type: "array",
         items: new OA\Items(ref: new Model(type: Image::class)),
     )]
+    
+    #[Groups(["getHabitats"])]
     private array $images;
 
     public function __construct(int $id, string $name, string $description, array $animals, array $images)
