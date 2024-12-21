@@ -6,6 +6,11 @@ framework:
     # Note that the session will be started ONLY if you read or write from it.
     session: true
 
+    http_method_override: true
+
+    assets:
+        base_urls: 'https://%kernel.project_dir%'
+
     #esi: true
     #fragments: true
 
