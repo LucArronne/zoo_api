@@ -49,11 +49,12 @@ class FileUploader
      */
     public function getFilePublicUrl(string $fileName): string
     {
-        return $this->urlGenerator->generate(
+        $url = $this->urlGenerator->generate(
             'uploads_path',
             ['fileName' => $fileName],
             UrlGeneratorInterface::ABSOLUTE_URL
         );
+        return preg_replace('/^http:/i', 'https:', $url);
     }
 
     /**
