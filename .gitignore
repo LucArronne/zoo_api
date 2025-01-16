@@ -8,5 +8,4 @@
 /var/
 /vendor/
 /public/uploads/
-/config/jwt/
 ###< symfony/framework-bundle ###
