@@ -1,13 +1,13 @@
 nelmio_cors:
     defaults:
-        allow_origin: ['http://localhost:3000', 'https://rajohnson.alwaysdata.net/']
+        allow_origin: ['*']
         allow_methods: ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE']
         allow_headers: ['Content-Type', 'Authorization']
         max_age: 3600
         allow_credentials: true
     paths:
         '^/api/':
-            allow_origin: ['http://localhost:3000', 'https://rajohnson.alwaysdata.net/']
+            allow_origin: ['*']
             allow_methods: ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE']
             allow_headers: ['Content-Type', 'Authorization']
             allow_credentials: true
