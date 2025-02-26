@@ -1,0 +1,53 @@
+name: Zoo API CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo
+        ports:
+          - 27017:27017
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        extensions: mbstring, xml, ctype, iconv, intl, pdo, mongodb
+        
+    - name: Copy .env.test
+      run: php -r "file_exists('.env.test.local') || copy('.env.test', '.env.test.local');"
+
+    - name: Cache Composer packages
+      id: composer-cache
+      uses: actions/cache@v3
+      with:
+        path: vendor
+        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-php-
+
+    - name: Install dependencies
+      run: composer install --prefer-dist --no-progress
+
+    - name: Generate JWT keys
+      run: |
+        mkdir -p config/jwt
+        echo "${{ secrets.JWT_PRIVATE_KEY }}" > config/jwt/private.pem
+        echo "${{ secrets.JWT_PUBLIC_KEY }}" > config/jwt/public.pem
+        chmod 644 config/jwt/private.pem config/jwt/public.pem
+
+    - name: Clear cache
+      run: |
+        APP_ENV=prod APP_DEBUG=0 php bin/console cache:clear
+        APP_ENV=prod APP_DEBUG=0 php bin/console cache:warmup 
