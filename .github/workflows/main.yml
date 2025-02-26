@@ -1,4 +1,4 @@
-name: Zoo API CI/CD
+name: Zoo API Deployment
 
 on:
   push:
@@ -7,12 +7,12 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
-
+    
     services:
       mongodb:
-        image: mongo
+        image: mongo:latest
         ports:
           - 27017:27017
 
@@ -23,31 +23,28 @@ jobs:
       uses: shivammathur/setup-php@v2
       with:
         php-version: '8.2'
-        extensions: mbstring, xml, ctype, iconv, intl, pdo, mongodb
+        extensions: mongodb, mbstring, xml, ctype, iconv
         
-    - name: Copy .env.test
-      run: php -r "file_exists('.env.test.local') || copy('.env.test', '.env.test.local');"
-
-    - name: Cache Composer packages
-      id: composer-cache
-      uses: actions/cache@v3
-      with:
-        path: vendor
-        key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-php-
+    - name: Validate composer.json
+      run: composer validate
 
     - name: Install dependencies
       run: composer install --prefer-dist --no-progress
 
-    - name: Generate JWT keys
+    - name: Generate JWT Keys
       run: |
         mkdir -p config/jwt
-        echo "${{ secrets.JWT_PRIVATE_KEY }}" > config/jwt/private.pem
-        echo "${{ secrets.JWT_PUBLIC_KEY }}" > config/jwt/public.pem
-        chmod 644 config/jwt/private.pem config/jwt/public.pem
+        openssl genpkey -out config/jwt/private.pem -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096 -pass pass:${{ secrets.JWT_PASSPHRASE }}
+        openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout -passin pass:${{ secrets.JWT_PASSPHRASE }}
 
-    - name: Clear cache
+    - name: Set up environment
+      run: |
+        echo "APP_ENV=prod" >> .env.local
+        echo "APP_SECRET=${{ secrets.APP_SECRET }}" >> .env.local
+        echo "MONGODB_URL=${{ secrets.MONGODB_URL }}" >> .env.local
+        echo "JWT_PASSPHRASE=${{ secrets.JWT_PASSPHRASE }}" >> .env.local
+
+    - name: Clear and warmup cache
       run: |
         APP_ENV=prod APP_DEBUG=0 php bin/console cache:clear
         APP_ENV=prod APP_DEBUG=0 php bin/console cache:warmup 
