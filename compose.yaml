@@ -1,0 +1,71 @@
+
+services:
+
+  ### PHP + Apache container for Symfony
+  app:
+    container_name: symfony_app
+    build: .
+    ports:
+      - "8000:80"
+      - "8443:443"
+    volumes:
+      - .:/var/www/symfony
+    environment:
+      APP_ENV: prod
+      APP_DEBUG: 0
+      DATABASE_URL: mysql://symfony:symfony@mysql_db:3306/zoodb
+      MONGODB_URI: mongodb://mongodb:2701/zoodb
+      JWT_SECRET_KEY: /var/www/symfony/config/jwt/private.pem
+      JWT_PUBLIC_KEY: /var/www/symfony/config/jwt/public.pem
+      JWT_PASSPHRASE: fe6e81c89f3b746b58fb9b7b37533cce5bf2308d2ade9404c55d386896cb4b40
+    
+    networks:
+      - zoo-app
+    depends_on:
+      - db
+      - mongo
+
+  ### MySQL container
+  db:
+    container_name: mysql_db
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: zoodb
+      MYSQL_USER: symfony
+      MYSQL_PASSWORD: symfony
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - zoo-app
+    ports:
+      - "3307:3306"
+
+  ### MongoDB container
+  mongo:
+    container_name: mongodb
+    image: mongo
+    networks:
+      - zoo-app
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_data:/var/lib/mongodb
+
+
+  ### Optional: Adminer (for MySQL admin UI)
+  adminer:
+    container_name: adminer
+    image: adminer
+    networks:
+      - zoo-app
+    ports:
+      - "8080:8080"
+
+volumes:
+  mysql_data:
+  mongo_data:
+
+networks:
+  zoo-app:
+    driver: bridge
